@@ -12,7 +12,11 @@ class ChargerGrid extends StatelessWidget {
       final id = index + 1;
       final types = ['GB/T', 'CCS', 'CHAdeMO'];
       final typeIndex = index % 3;
-      final statusColors = [Colors.yellow, Colors.green, context.color.positive];
+      final statusColors = [
+        Colors.yellow,
+        Colors.green,
+        context.color.positive,
+      ];
       final color = statusColors[typeIndex];
 
       return ChargerGridItem(
@@ -24,19 +28,7 @@ class ChargerGrid extends StatelessWidget {
       );
     });
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: chargers.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 5,
-        crossAxisSpacing: 2,
-        mainAxisSpacing: 2,
-      ),
-      itemBuilder: (context, index) {
-        return chargers[index];
-      },
-    );
+    return Wrap(spacing: 2, runSpacing: 2, children: chargers);
   }
 }
 
@@ -59,6 +51,8 @@ class ChargerGridItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height: AppSizes.double70,
+      width: AppSizes.double80,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: context.color.shimmer,
@@ -73,27 +67,21 @@ class ChargerGridItem extends StatelessWidget {
             children: [
               Text(
                 number.toString(),
-                style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.029,
-                  fontWeight: FontWeight.w600,
-                  color: status,
-                ),
+                style: context.text.medium13.copyWith(color: status),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
                     '$rubles руб',
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.016,
+                    style: context.text.regular8.copyWith(
                       color: context.color.onSecondary,
                     ),
                   ),
                   Gap(AppSizes.double4),
                   Text(
                     '$energy кВт*ч',
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width * 0.016,
+                    style: context.text.regular8.copyWith(
                       color: context.color.onSecondary,
                     ),
                   ),
@@ -106,14 +94,13 @@ class ChargerGridItem extends StatelessWidget {
             children: [
               Text(
                 type,
-                style: TextStyle(
-                  fontSize: MediaQuery.of(context).size.width * 0.016,
+                style: context.text.regular8.copyWith(
                   color: context.color.onSecondary,
                 ),
               ),
               Container(
-                width: MediaQuery.of(context).size.width * 0.02,
-                height: MediaQuery.of(context).size.width * 0.02,
+                width: AppSizes.double12,
+                height: AppSizes.double12,
                 decoration: BoxDecoration(
                   color: status,
                   shape: BoxShape.circle,

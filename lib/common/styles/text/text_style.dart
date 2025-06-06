@@ -65,11 +65,11 @@ enum AppTextStyle {
       height: 1.2,
     ),
   ),
-  regular3(
+  regular8(
     TextStyle(
       fontFamily: 'OpenSans',
       fontWeight: FontWeight.w400,
-      fontSize: 11,
+      fontSize: 8,
       height: 1.2,
     ),
   ),

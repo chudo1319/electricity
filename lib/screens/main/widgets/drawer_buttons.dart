@@ -1,3 +1,5 @@
+import 'package:auto_route/auto_route.dart';
+import 'package:electricity/common/navigation/app_router.gr.dart';
 import 'package:flutter/material.dart';
 import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/utils/extensions/context_extensions.dart';
@@ -14,11 +16,16 @@ class DrawerButtons extends StatelessWidget {
         child: Column(
           children: [
             Gap(AppSizes.double60),
-            DrawerButton(text: 'Статистика и аналитика'),
+            DrawerButton(text: 'Статистика и аналитика', onPressed: () {}),
             Expanded(child: SizedBox()),
             Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.double60),
-              child: DrawerButton(text: 'Выход из профиля'),
+              child: DrawerButton(
+                text: 'Выход из профиля',
+                onPressed: () {
+                  context.router.replace(const AuthRoute());
+                },
+              ),
             ),
           ],
         ),
@@ -28,8 +35,9 @@ class DrawerButtons extends StatelessWidget {
 }
 
 class DrawerButton extends StatelessWidget {
-  const DrawerButton({super.key, required this.text});
+  const DrawerButton({super.key, required this.text, required this.onPressed});
   final String text;
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +52,7 @@ class DrawerButton extends StatelessWidget {
           foregroundColor: context.color.shimmer,
           minimumSize: Size(double.infinity, AppSizes.double40),
         ),
-        onPressed: () {},
+        onPressed: onPressed,
         child: Text(
           text,
           style: context.text.regular16.copyWith(
