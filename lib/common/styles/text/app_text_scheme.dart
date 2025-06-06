@@ -8,6 +8,7 @@ part 'app_text_scheme.tailor.dart';
 @TailorMixin(themeGetter: ThemeGetter.none)
 class AppTextScheme extends ThemeExtension<AppTextScheme> with _$AppTextSchemeTailorMixin {
   const AppTextScheme({
+    required this.regular3,
     required this.regular11,
     required this.regular12,
     required this.regular13,
@@ -36,7 +37,8 @@ class AppTextScheme extends ThemeExtension<AppTextScheme> with _$AppTextSchemeTa
 
   /// Base app text theme.
   AppTextScheme.base([Color? color])
-      : regular11 = AppTextStyle.regular11.value.copyWith(color: color),
+      : regular3 = AppTextStyle.regular3.value.copyWith(color: color),
+        regular11 = AppTextStyle.regular11.value.copyWith(color: color),
         regular12 = AppTextStyle.regular12.value.copyWith(color: color),
         regular13 = AppTextStyle.regular13.value.copyWith(color: color),
         regular14 = AppTextStyle.regular14.value.copyWith(color: color),
@@ -61,6 +63,8 @@ class AppTextScheme extends ThemeExtension<AppTextScheme> with _$AppTextSchemeTa
         medium20 = AppTextStyle.medium20.value.copyWith(color: color),
         medium24 = AppTextStyle.medium24.value.copyWith(color: color);
 
+  @override
+  final TextStyle regular3;
   @override
   final TextStyle regular11;
   @override

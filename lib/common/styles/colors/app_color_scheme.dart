@@ -226,7 +226,7 @@ class AppColorScheme extends ThemeExtension<AppColorScheme> with _$AppColorSchem
         frameTextFieldSecondary = const Color(0xFF303030),
         inactive = const Color(0xFF898989),
         onInactive = const Color(0xFFF3F3F3),
-        positive = const Color(0xFF646FF4),
+        positive = const Color(0xFF23DDF9),
         onPositive = const Color(0xFFFFFFFF),
         skeletonPrimary = Colors.black.withOpacity(_skeletonOpacity),
         onSkeletonPrimary = const Color(0xFFFFFFFF),

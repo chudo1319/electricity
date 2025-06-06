@@ -65,6 +65,14 @@ enum AppTextStyle {
       height: 1.2,
     ),
   ),
+  regular3(
+    TextStyle(
+      fontFamily: 'OpenSans',
+      fontWeight: FontWeight.w400,
+      fontSize: 11,
+      height: 1.2,
+    ),
+  ),
   regular11(
     TextStyle(
       fontFamily: 'OpenSans',

@@ -10,6 +10,7 @@ part of 'app_text_scheme.dart';
 // **************************************************************************
 
 mixin _$AppTextSchemeTailorMixin on ThemeExtension<AppTextScheme> {
+  TextStyle get regular3;
   TextStyle get regular11;
   TextStyle get regular12;
   TextStyle get regular13;
@@ -37,6 +38,7 @@ mixin _$AppTextSchemeTailorMixin on ThemeExtension<AppTextScheme> {
 
   @override
   AppTextScheme copyWith({
+    TextStyle? regular3,
     TextStyle? regular11,
     TextStyle? regular12,
     TextStyle? regular13,
@@ -63,6 +65,7 @@ mixin _$AppTextSchemeTailorMixin on ThemeExtension<AppTextScheme> {
     TextStyle? medium24,
   }) {
     return AppTextScheme(
+      regular3: regular3 ?? this.regular3,
       regular11: regular11 ?? this.regular11,
       regular12: regular12 ?? this.regular12,
       regular13: regular13 ?? this.regular13,
@@ -94,6 +97,7 @@ mixin _$AppTextSchemeTailorMixin on ThemeExtension<AppTextScheme> {
   AppTextScheme lerp(covariant ThemeExtension<AppTextScheme>? other, double t) {
     if (other is! AppTextScheme) return this as AppTextScheme;
     return AppTextScheme(
+      regular3: TextStyle.lerp(regular3, other.regular3, t)!,
       regular11: TextStyle.lerp(regular11, other.regular11, t)!,
       regular12: TextStyle.lerp(regular12, other.regular12, t)!,
       regular13: TextStyle.lerp(regular13, other.regular13, t)!,
@@ -126,6 +130,7 @@ mixin _$AppTextSchemeTailorMixin on ThemeExtension<AppTextScheme> {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is AppTextScheme &&
+            const DeepCollectionEquality().equals(regular3, other.regular3) &&
             const DeepCollectionEquality().equals(regular11, other.regular11) &&
             const DeepCollectionEquality().equals(regular12, other.regular12) &&
             const DeepCollectionEquality().equals(regular13, other.regular13) &&
@@ -180,6 +185,7 @@ mixin _$AppTextSchemeTailorMixin on ThemeExtension<AppTextScheme> {
   int get hashCode {
     return Object.hashAll([
       runtimeType.hashCode,
+      const DeepCollectionEquality().hash(regular3),
       const DeepCollectionEquality().hash(regular11),
       const DeepCollectionEquality().hash(regular12),
       const DeepCollectionEquality().hash(regular13),

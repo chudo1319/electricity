@@ -51,6 +51,9 @@ abstract class AppSizes {
   /// Value double 60.
   static const double60 = 60.0;
 
+  /// Value double 60.
+  static const double70 = 70.0;
+
   /// Value double 100.
   static const double100 = 100.0;
 
