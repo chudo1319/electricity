@@ -229,7 +229,7 @@ class AppColorScheme extends ThemeExtension<AppColorScheme> with _$AppColorSchem
         positive = const Color(0xFF23DDF9),
         onPositive = const Color(0xFFFFFFFF),
         skeletonPrimary = Colors.black.withOpacity(_skeletonOpacity),
-        onSkeletonPrimary = const Color(0xFFFFFFFF),
+        onSkeletonPrimary = const Color(0xCC000000),
         shimmer = Colors.black,
         shadow = Colors.black.withOpacity(0.25),
         avatarBorderOnBackground = const Color(0xFFE7E7E7);

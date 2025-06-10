@@ -11,8 +11,7 @@ class DrawerButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: Container(
-        color: context.color.shimmer,
+      backgroundColor: context.color.onPrimary.withAlpha(200),
         child: Column(
           children: [
             Gap(AppSizes.double60),
@@ -31,7 +30,6 @@ class DrawerButtons extends StatelessWidget {
             ),
           ],
         ),
-      ),
     );
   }
 }

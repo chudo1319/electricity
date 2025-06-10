@@ -130,7 +130,11 @@ class PopUpClose extends StatelessWidget {
         Navigator.pop(context);
         showDialog(
           context: context,
-          builder: (context) => PopUpPay(index: index),
+          builder: (context) => PopUpPay(
+            index: index,
+            okText: 'Оплачено',
+            okButtonColor: context.color.secondary,
+          ),
         );
       },
     );
@@ -138,9 +142,11 @@ class PopUpClose extends StatelessWidget {
 }
 
 class PopUpPay extends StatelessWidget {
-  const PopUpPay({super.key, required this.index});
+  const PopUpPay({super.key, required this.index, required this.okText, required this.okButtonColor});
 
   final int index;
+  final String okText;
+  final Color okButtonColor;
 
   @override
   Widget build(BuildContext context) {
@@ -168,22 +174,60 @@ class PopUpPay extends StatelessWidget {
         ],
       ),
       cancel: 'Закрыть',
-      ok: 'Оплатить',
+      ok: okText,
       cancelButtonColor: context.color.onBackgroundSecondary,
-      okButtonColor: context.color.secondary,
+      okButtonColor: okButtonColor,
     );
   }
 }
 
-class PopUpTextField extends StatelessWidget {
+class PopUpTextField extends StatefulWidget {
   const PopUpTextField({super.key, required this.index});
 
   final int index;
 
   @override
+  State<PopUpTextField> createState() => _PopUpTextFieldState();
+}
+
+class _PopUpTextFieldState extends State<PopUpTextField> {
+  final TextEditingController socController = TextEditingController();
+  final TextEditingController kwhController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
+
+  @override
+  void dispose() {
+    socController.dispose();
+    kwhController.dispose();
+    timeController.dispose();
+    super.dispose();
+  }
+
+  void _onChanged() {
+    setState(() {});
+  }
+
+  bool get isAnyFilled =>
+      socController.text.isNotEmpty ||
+      kwhController.text.isNotEmpty ||
+      timeController.text.isNotEmpty;
+
+  @override
+  void initState() {
+    super.initState();
+    socController.addListener(_onChanged);
+    kwhController.addListener(_onChanged);
+    timeController.addListener(_onChanged);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final socEnabled = socController.text.isNotEmpty || !isAnyFilled;
+    final kwhEnabled = kwhController.text.isNotEmpty || !isAnyFilled;
+    final timeEnabled = timeController.text.isNotEmpty || !isAnyFilled;
+
     return PopUp(
-      stationNumber: index + 1,
+      stationNumber: widget.index + 1,
       stationName: 'A57_0140',
       stationType: 'CCS',
       content: Column(
@@ -191,15 +235,27 @@ class PopUpTextField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          PopUpTextFieldItem(hintText: 'Лимит SOC'),
+          PopUpTextFieldItem(
+            hintText: 'Лимит SOC',
+            controller: socController,
+            enabled: socEnabled,
+          ),
           Gap(AppSizes.double8),
-          PopUpTextFieldItem(hintText: 'Лимит кВт*ч'),
+          PopUpTextFieldItem(
+            hintText: 'Лимит кВт*ч',
+            controller: kwhController,
+            enabled: kwhEnabled,
+          ),
           Gap(AppSizes.double8),
-          PopUpTextFieldItem(hintText: 'Лимит времени'),
+          PopUpTextFieldItem(
+            hintText: 'Лимит времени',
+            controller: timeController,
+            enabled: timeEnabled,
+          ),
         ],
       ),
       cancel: 'Закрыть',
-      ok: 'Оплатить',
+      ok: 'Начать',
       cancelButtonColor: context.color.onBackgroundSecondary,
       okButtonColor: context.color.secondary,
     );
@@ -207,13 +263,22 @@ class PopUpTextField extends StatelessWidget {
 }
 
 class PopUpTextFieldItem extends StatelessWidget {
-  const PopUpTextFieldItem({super.key, required this.hintText});
+  const PopUpTextFieldItem({
+    super.key,
+    required this.hintText,
+    this.controller,
+    this.enabled = true,
+  });
 
   final String hintText;
+  final TextEditingController? controller;
+  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
+      enabled: enabled,
       textAlign: TextAlign.start,
       cursorHeight: AppSizes.double20,
       decoration: InputDecoration(

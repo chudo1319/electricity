@@ -33,7 +33,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-     _inactivityTimer?.cancel();
+    _inactivityTimer?.cancel();
     _tabController.dispose();
     super.dispose();
   }
@@ -48,7 +48,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       context.router.replace(const AuthRoute());
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Listener(
@@ -74,14 +74,27 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  PrimaryButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    icon: 'assets/icons/left_arrow.svg',
-                    onPressed: () {
-                      context.router.back();
-                    },
+                  Row(
+                    children: [
+                      PrimaryButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        icon: 'assets/icons/left_arrow.svg',
+                        onPressed: () {
+                          context.router.back();
+                        },
+                      ),
+                      Gap(AppSizes.double12),
+                      PrimaryButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        onPressed: () {
+                          _scaffoldKey.currentState?.openDrawer();
+                        },
+                      ),
+                    ],
                   ),
                   Gap(AppSizes.double12),
                   ChargerGrid(),
@@ -93,7 +106,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                       controller: _tabController,
                       children: [
                         SingleChildScrollView(
-                          child: CurrentStations(textStatus: 'Оплатить'),
+                          child: CurrentStations(textStatus: 'Не оплачено'),
                         ),
                         SingleChildScrollView(
                           child: CurrentStations(textStatus: 'Оплачено'),

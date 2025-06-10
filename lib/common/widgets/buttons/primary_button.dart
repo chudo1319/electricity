@@ -59,7 +59,7 @@ class PrimaryButton extends StatelessWidget {
               Flexible(
                 child: Text(
                   text!,
-                  style: (textStyle ?? context.text.semiBold24).copyWith(
+                  style: (textStyle ?? context.text.medium16).copyWith(
                     color: textColor ?? context.color.onPrimary,
                   ),
                 ),
