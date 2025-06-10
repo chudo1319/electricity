@@ -217,7 +217,7 @@ class AppColorScheme extends ThemeExtension<AppColorScheme> with _$AppColorSchem
         surfaceContainer = const Color(0xFFFFFFFF),
         background = const Color(0xFF3E3C3C),
         onBackground = const Color(0xFFFFFFFF),
-        onBackgroundSecondary = const Color(0xFF000000),
+        onBackgroundSecondary = const Color(0xFFF4F4F4),
         danger = const Color(0xFFDF3222),
         onDanger = const Color(0xFFFFFFFF),
         textField = const Color(0xFF303030),

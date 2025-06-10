@@ -15,5 +15,9 @@ class AppRouter extends RootStackRouter {
       page: MainRoute.page,
       path: AppRoutePaths.main,
     ),
+    CustomRoute(
+      page: StatisticsRoute.page,
+      path: AppRoutePaths.statistics,
+    ),  
   ];
 }

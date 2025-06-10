@@ -9,4 +9,5 @@
 abstract class AppRoutePaths {
   static const main = '/main';
   static const auth = '/auth';
+  static const statistics = '/statistics';
 }

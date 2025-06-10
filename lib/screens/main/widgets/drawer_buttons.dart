@@ -16,7 +16,9 @@ class DrawerButtons extends StatelessWidget {
         child: Column(
           children: [
             Gap(AppSizes.double60),
-            DrawerButton(text: 'Статистика и аналитика', onPressed: () {}),
+            DrawerButton(text: 'Статистика и аналитика', onPressed: () {
+              context.router.push(const StatisticsRoute());
+            }),
             Expanded(child: SizedBox()),
             Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.double60),

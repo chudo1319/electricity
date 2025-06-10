@@ -222,6 +222,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_inappwebview:
+    dependency: transitive
+    description:
+      name: flutter_inappwebview
+      sha256: d198297060d116b94048301ee6749cd2e7d03c1f2689783f52d210a6b7aba350
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.8.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -243,6 +251,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_yandex_smartcaptcha:
+    dependency: "direct main"
+    description:
+      name: flutter_yandex_smartcaptcha
+      sha256: "480a0ca948e1e5daceb4aff11cc17a68b4d2555cacd229c0f2f8a0b8ff6f3f81"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.7"
   frontend_server_client:
     dependency: transitive
     description:
