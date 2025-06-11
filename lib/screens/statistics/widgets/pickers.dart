@@ -6,24 +6,42 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
-class DataPicker extends StatelessWidget {
-  const DataPicker({
+enum PickerType { date, time }
+
+class PeriodPicker extends StatelessWidget {
+  const PeriodPicker({
     super.key,
     required this.title,
-    this.startDate,
-    this.endDate,
-    this.changeStartDate,
-    this.changeEndDate,
+    this.startValue,
+    this.endValue,
+    this.onStartChanged,
+    this.onEndChanged,
+    required this.type,
+    this.showError = false,
   });
 
   final String title;
-  final String? startDate;
-  final String? endDate;
-  final void Function(String)? changeStartDate;
-  final void Function(String)? changeEndDate;
+  final String? startValue;
+  final String? endValue;
+  final void Function(String)? onStartChanged;
+  final void Function(String)? onEndChanged;
+  final PickerType type;
+  final bool showError;
+
+  DateTime? _parseDate(String? value) {
+    if (value == null || value.isEmpty) return null;
+    try {
+      return DateTime.parse(value);
+    } catch (e) {
+      return null;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final startDate = _parseDate(startValue);
+    final endDate = _parseDate(endValue);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -35,20 +53,26 @@ class DataPicker extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: DatePickerButton(
+              child: PickerButton(
                 text: 'с',
-                value: startDate ?? '',
-                changeDate: changeStartDate,
+                value: startValue ?? '',
+                onChanged: onStartChanged,
+                type: type,
+                showError: showError,
+                maxDate: endDate,
               ),
             ),
             const Gap(AppSizes.double6),
             Container(height: 2, width: 10, color: context.color.inactive),
             const Gap(AppSizes.double6),
             Expanded(
-              child: DatePickerButton(
+              child: PickerButton(
                 text: 'по',
-                value: endDate ?? '',
-                changeDate: changeEndDate,
+                value: endValue ?? '',
+                onChanged: onEndChanged,
+                type: type,
+                showError: showError,
+                minDate: startDate,
               ),
             ),
           ],
@@ -58,23 +82,31 @@ class DataPicker extends StatelessWidget {
   }
 }
 
-class DatePickerButton extends StatefulWidget {
-  const DatePickerButton({
+class PickerButton extends StatefulWidget {
+  const PickerButton({
     super.key,
     required this.text,
     this.value = '',
-    this.changeDate,
+    this.onChanged,
+    required this.type,
+    this.showError = false,
+    this.minDate,
+    this.maxDate,
   });
 
   final String text;
   final String value;
-  final void Function(String)? changeDate;
+  final void Function(String)? onChanged;
+  final PickerType type;
+  final bool showError;
+  final DateTime? minDate;
+  final DateTime? maxDate;
 
   @override
-  State<DatePickerButton> createState() => _DatePickerButtonState();
+  State<PickerButton> createState() => _PickerButtonState();
 }
 
-class _DatePickerButtonState extends State<DatePickerButton> {
+class _PickerButtonState extends State<PickerButton> {
   String formatDate(DateTime date) {
     return DateFormat("d MMMM. yyyy", "ru_RU").format(date);
   }
@@ -83,6 +115,18 @@ class _DatePickerButtonState extends State<DatePickerButton> {
     if (isoDate.isEmpty) return '';
     final date = DateTime.parse(isoDate);
     return formatDate(date);
+  }
+
+  String formatTime(TimeOfDay time) {
+    final now = DateTime.now();
+    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    return DateFormat("HH:mm", "ru_RU").format(dt);
+  }
+
+  String formatDisplayTime(String isoTime) {
+    if (isoTime.isEmpty) return '';
+    final time = DateTime.parse(isoTime);
+    return DateFormat("HH:mm", "ru_RU").format(time);
   }
 
   Future<void> _showDatePicker() async {
@@ -119,148 +163,33 @@ class _DatePickerButtonState extends State<DatePickerButton> {
         cancelButtonTextStyle: context.text.regular16.copyWith(
           color: context.color.onPrimary,
         ),
+        disabledDayTextStyle: context.text.regular16.copyWith(
+          color: context.color.inactive,
+        ),
+        selectableDayPredicate: (date) {
+          if (widget.minDate != null && date.isBefore(widget.minDate!)) {
+            return false;
+          }
+          if (widget.maxDate != null && date.isAfter(widget.maxDate!)) {
+            return false;
+          }
+          return true;
+        },
       ),
       dialogSize: const Size(325, 400),
       borderRadius: BorderRadius.circular(AppSizes.double12),
+      value:
+          widget.value.isNotEmpty
+              ? [DateTime.parse(widget.value)]
+              : <DateTime?>[],
     );
 
-    if (picked != null && picked.isNotEmpty && widget.changeDate != null) {
+    if (picked != null && picked.isNotEmpty && widget.onChanged != null) {
       final formattedDate = DateFormat(
         "yyyy-MM-dd'T'HH:mm:ss'Z'",
       ).format(picked.first!);
-      widget.changeDate!(formattedDate);
+      widget.onChanged!(formattedDate);
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        if (widget.value.isEmpty) {
-          _showDatePicker();
-        } else if (widget.changeDate != null) {
-          widget.changeDate!('');
-        }
-      },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            vertical: AppSizes.double8,
-            horizontal: AppSizes.double4,
-          ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppSizes.double8),
-            border: Border.all(color: context.color.inactive),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                widget.value.isNotEmpty
-                    ? formatDisplayDate(widget.value)
-                    : widget.text,
-                style: context.text.regular16.copyWith(
-                  color: context.color.inactive,
-                ),
-              ),
-              SvgPicture.asset(
-                widget.value.isEmpty
-                    ? 'assets/icons/calendar.svg'
-                    : 'assets/icons/cancel.svg',
-                height: AppSizes.double20,
-                colorFilter: ColorFilter.mode(
-                  context.color.positive,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class TimePicker extends StatelessWidget {
-  const TimePicker({
-    super.key,
-    required this.title,
-    this.startTime,
-    this.endTime,
-    this.changeStartTime,
-    this.changeEndTime,
-  });
-
-  final String title;
-  final String? startTime;
-  final String? endTime;
-  final void Function(String)? changeStartTime;
-  final void Function(String)? changeEndTime;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: context.text.medium13.copyWith(color: context.color.inactive),
-        ),
-        const Gap(AppSizes.double6),
-        Row(
-          children: [
-            Expanded(
-              child: TimePickerButton(
-                text: 'с',
-                value: startTime ?? '',
-                changeTime: changeStartTime,
-              ),
-            ),
-            const Gap(AppSizes.double6),
-            Container(height: 2, width: 10, color: context.color.inactive),
-            const Gap(AppSizes.double6),
-            Expanded(
-              child: TimePickerButton(
-                text: 'по',
-                value: endTime ?? '',
-                changeTime: changeEndTime,
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class TimePickerButton extends StatefulWidget {
-  const TimePickerButton({
-    super.key,
-    required this.text,
-    this.value = '',
-    this.changeTime,
-  });
-
-  final String text;
-  final String value;
-  final void Function(String)? changeTime;
-
-  @override
-  State<TimePickerButton> createState() => _TimePickerButtonState();
-}
-
-class _TimePickerButtonState extends State<TimePickerButton> {
-  String formatTime(TimeOfDay time) {
-    final now = DateTime.now();
-    final dt = DateTime(now.year, now.month, now.day, time.hour, time.minute);
-    return DateFormat("HH:mm", "ru_RU").format(dt);
-  }
-
-  String formatDisplayTime(String isoTime) {
-    if (isoTime.isEmpty) return '';
-    final time = DateTime.parse(isoTime);
-    return DateFormat("HH:mm", "ru_RU").format(time);
   }
 
   Future<void> _showTimePicker() async {
@@ -272,7 +201,10 @@ class _TimePickerButtonState extends State<TimePickerButton> {
       helpText: 'Выберите время',
       hourLabelText: 'Часы',
       minuteLabelText: 'Минуты',
-      initialTime: TimeOfDay.now(),
+      initialTime:
+          widget.value.isNotEmpty
+              ? TimeOfDay.fromDateTime(DateTime.parse(widget.value))
+              : TimeOfDay.now(),
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -297,7 +229,7 @@ class _TimePickerButtonState extends State<TimePickerButton> {
       },
     );
 
-    if (picked != null && widget.changeTime != null) {
+    if (picked != null && widget.onChanged != null) {
       final now = DateTime.now();
       final dt = DateTime(
         now.year,
@@ -306,19 +238,75 @@ class _TimePickerButtonState extends State<TimePickerButton> {
         picked.hour,
         picked.minute,
       );
+
+      if (widget.minDate != null) {
+        final minTime = TimeOfDay.fromDateTime(widget.minDate!);
+        if (picked.hour < minTime.hour ||
+            (picked.hour == minTime.hour && picked.minute < minTime.minute)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Время должно быть не раньше ${formatTime(minTime)}',
+                style: context.text.regular14.copyWith(
+                  color: context.color.onPrimary,
+                ),
+              ),
+              backgroundColor: context.color.danger,
+            ),
+          );
+          return;
+        }
+      }
+
+      if (widget.maxDate != null) {
+        final maxTime = TimeOfDay.fromDateTime(widget.maxDate!);
+        if (picked.hour > maxTime.hour ||
+            (picked.hour == maxTime.hour && picked.minute > maxTime.minute)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Время должно быть не позже ${formatTime(maxTime)}',
+                style: context.text.regular14.copyWith(
+                  color: context.color.onPrimary,
+                ),
+              ),
+              backgroundColor: context.color.danger,
+            ),
+          );
+          return;
+        }
+      }
+
       final formattedTime = DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(dt);
-      widget.changeTime!(formattedTime);
+      widget.onChanged!(formattedTime);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    String displayValue = '';
+    if (widget.type == PickerType.date) {
+      displayValue =
+          widget.value.isNotEmpty
+              ? formatDisplayDate(widget.value)
+              : widget.text;
+    } else {
+      displayValue =
+          widget.value.isNotEmpty
+              ? formatDisplayTime(widget.value)
+              : widget.text;
+    }
+
     return GestureDetector(
       onTap: () {
         if (widget.value.isEmpty) {
-          _showTimePicker();
-        } else if (widget.changeTime != null) {
-          widget.changeTime!('');
+          if (widget.type == PickerType.date) {
+            _showDatePicker();
+          } else {
+            _showTimePicker();
+          }
+        } else if (widget.onChanged != null) {
+          widget.onChanged!('');
         }
       },
       child: MouseRegion(
@@ -330,17 +318,23 @@ class _TimePickerButtonState extends State<TimePickerButton> {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSizes.double8),
-            border: Border.all(color: context.color.inactive),
+            border: Border.all(
+              color:
+                  widget.showError
+                      ? context.color.danger
+                      : context.color.inactive,
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.value.isNotEmpty
-                    ? formatDisplayTime(widget.value)
-                    : widget.text,
+                displayValue,
                 style: context.text.regular16.copyWith(
-                  color: context.color.inactive,
+                  color:
+                      widget.showError
+                          ? context.color.danger
+                          : context.color.inactive,
                 ),
               ),
               SvgPicture.asset(
@@ -349,7 +343,9 @@ class _TimePickerButtonState extends State<TimePickerButton> {
                     : 'assets/icons/cancel.svg',
                 height: AppSizes.double20,
                 colorFilter: ColorFilter.mode(
-                  context.color.positive,
+                  widget.showError
+                      ? context.color.danger
+                      : context.color.positive,
                   BlendMode.srcIn,
                 ),
               ),

@@ -19,9 +19,38 @@ class StatisticsScreen extends StatefulWidget {
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool showReport = false;
   String? saveStatus;
+  bool showDateError = false;
+  bool showTimeError = false;
+
+  String? _startDate;
+  String? _endDate;
+  String? _startTime;
+  String? _endTime;
+
+  bool get _isPeriodValid => _startDate != null && _endDate != null;
+  bool get _isTimeValid => _startTime != null && _endTime != null;
+  bool get _isFormValid => _isPeriodValid && _isTimeValid;
+
+  void _onGenerate() {
+    if (!_isPeriodValid) {
+      setState(() => showDateError = true);
+    }
+    if (!_isTimeValid) {
+      setState(() => showTimeError = true);
+    }
+    if (_isFormValid) {
+      setState(() {
+        showReport = true;
+        saveStatus = null;
+        showDateError = false;
+        showTimeError = false;
+      });
+    }
+  }
 
   void _onSave() async {
-    final success = false;
+    if (!showReport) return;
+    final success = true;
     setState(() {
       saveStatus = success ? 'success' : 'error';
     });
@@ -43,9 +72,61 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           ),
           child: Column(
             children: [
-              DataPicker(title: 'Выберите период'),
+              PeriodPicker(
+                title: 'Выберите период',
+                startValue: _startDate,
+                endValue: _endDate,
+                onStartChanged:
+                    (val) => setState(() {
+                      _startDate = val;
+                      showDateError = false;
+                    }),
+                onEndChanged:
+                    (val) => setState(() {
+                      _endDate = val;
+                      showDateError = false;
+                    }),
+                type: PickerType.date,
+                showError: showDateError,
+              ),
+              if (showDateError)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    'Выберите период',
+                    style: context.text.regular14.copyWith(
+                      color: context.color.danger,
+                    ),
+                  ),
+                ),
               Gap(AppSizes.double12),
-              TimePicker(title: 'Выберите время'),
+              PeriodPicker(
+                title: 'Выберите время',
+                startValue: _startTime,
+                endValue: _endTime,
+                onStartChanged:
+                    (val) => setState(() {
+                      _startTime = val;
+                      showTimeError = false;
+                    }),
+                onEndChanged:
+                    (val) => setState(() {
+                      _endTime = val;
+                      showTimeError = false;
+                    }),
+                type: PickerType.time,
+                showError: showTimeError,
+              ),
+              if (showTimeError)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0),
+                  child: Text(
+                    'Выберите время',
+                    style: context.text.regular14.copyWith(
+                      color: context.color.danger,
+                    ),
+                  ),
+                ),
               Gap(AppSizes.double20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,17 +134,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   PrimaryButton(
                     width: MediaQuery.of(context).size.width * 0.44,
                     text: 'Сформировать',
-                    onPressed: () {
-                      setState(() {
-                        showReport = true;
-                        saveStatus = null;
-                      });
-                    },
+                    onPressed: _onGenerate,
+                    isEnabled: true,
                   ),
                   PrimaryButton(
                     width: MediaQuery.of(context).size.width * 0.44,
                     text: 'Сохранить',
-                    onPressed: _onSave,
+                    onPressed: showReport ? _onSave : null,
+                    isEnabled: showReport,
                   ),
                 ],
               ),

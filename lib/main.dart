@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'common/navigation/app_router.dart';
 import 'common/styles/themes/app_theme_data.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('ru_RU', null);
   runApp(Electricity());
 }
 

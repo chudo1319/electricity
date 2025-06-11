@@ -17,6 +17,7 @@ class PrimaryButton extends StatelessWidget {
     this.shape,
     this.icon,
     this.iconColor,
+    this.isEnabled = true,
   });
 
   final String? text;
@@ -30,6 +31,7 @@ class PrimaryButton extends StatelessWidget {
   final OutlinedBorder? shape;
   final String? icon;
   final Color? iconColor;
+  final bool isEnabled;
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +47,12 @@ class PrimaryButton extends StatelessWidget {
           padding: padding,
           foregroundColor: textColor ?? context.color.onPrimary,
           shape:
-          shape ??
+              shape ??
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppSizes.double16),
               ),
         ),
-        onPressed: onPressed,
+        onPressed: isEnabled ? onPressed : null,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
