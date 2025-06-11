@@ -38,6 +38,7 @@ class CurrentStations extends StatelessWidget {
                 stationNumber: index + 1,
                 stationName: 'A57_0140',
                 stationType: 'CCS',
+                transactionDate: '13.06.2025 12:00',
                 power: 22,
                 energy: 10,
                 percent: 75,
@@ -57,6 +58,7 @@ class CurrentStations extends StatelessWidget {
                 stationNumber: index + 1,
                 stationName: 'A57_0140',
                 stationType: 'CCS',
+                transactionDate: '13.06.2025 12:00',
                 power: 22,
                 energy: 10,
                 percent: 75,
@@ -81,7 +83,8 @@ class Station extends StatelessWidget {
     required this.colorStatus,
     required this.isPaid,
     required this.buildContext,
-    this.textStatus,
+    required this.transactionDate,
+    this.textStatus,  
   });
 
   final int stationNumber;
@@ -94,6 +97,7 @@ class Station extends StatelessWidget {
   final bool isPaid;
   final String? textStatus;
   final Widget Function(BuildContext context)? buildContext;
+  final String transactionDate;
 
   @override
   Widget build(BuildContext context) {
@@ -135,10 +139,18 @@ class Station extends StatelessWidget {
                 Gap(AppSizes.double8),
                 Text(
                   stationType,
-                  style: context.text.regular15.copyWith(
+                  style: context.text.medium16.copyWith(
                     color: context.color.onPrimary,
                   ),
                 ),
+                Gap(AppSizes.double8),
+                // Text(
+                //   transactionDate,
+                //   textAlign: TextAlign.end,
+                //   style: context.text.regular15.copyWith(
+                //     color: context.color.inactive,
+                //   ),
+                // ),
                 Spacer(),
                 isPaid
                     ? Text(
@@ -161,7 +173,7 @@ class Station extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+              padding: const EdgeInsets.symmetric(horizontal: AppSizes.double8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -179,6 +191,13 @@ class Station extends StatelessWidget {
                   ),
                   Text(
                     '$percent%',
+                    style: context.text.regular15.copyWith(
+                      color: context.color.onPrimary,
+                    ),
+                  ),
+                  Text(
+                    transactionDate,
+                    textAlign: TextAlign.end,
                     style: context.text.regular15.copyWith(
                       color: context.color.onPrimary,
                     ),

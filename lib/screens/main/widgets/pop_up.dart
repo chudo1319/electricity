@@ -18,6 +18,7 @@ class PopUp extends StatelessWidget {
     this.onPressed,
     this.onSubmit,
     required this.status,
+    required this.transactionDate,
   });
 
   final Widget? content;
@@ -31,6 +32,7 @@ class PopUp extends StatelessWidget {
   final VoidCallback? onPressed;
   final Future<void> Function()? onSubmit;
   final Color status;
+  final String transactionDate;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +40,13 @@ class PopUp extends StatelessWidget {
       backgroundColor: context.color.primary,
       title: Column(
         children: [
+          Text(
+            transactionDate,
+            style: context.text.medium20.copyWith(
+              color: context.color.onPrimary,
+            ),
+          ),
+          Gap(AppSizes.double8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -56,7 +65,7 @@ class PopUp extends StatelessWidget {
               Text(
                 stationType,
                 style: context.text.regular16.copyWith(
-                  color: context.color.inactive,
+                  color: context.color.onPrimary,
                 ),
               ),
             ],
@@ -133,6 +142,7 @@ class PopUpClose extends StatelessWidget {
       stationName: 'A57_0140',
       stationType: 'CCS',
       status: status,
+      transactionDate: '13.06.2025 12:00',
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -192,6 +202,7 @@ class PopUpPay extends StatelessWidget {
       stationName: 'A57_0140',
       stationType: 'CCS',
       status: status,
+      transactionDate: '13.06.2025 12:00',
       content: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,6 +283,7 @@ class _PopUpTextFieldState extends State<PopUpTextField> {
       stationName: 'A57_0140',
       stationType: 'CCS',
       status: widget.status,
+      transactionDate: '13.06.2025 12:00',
       content: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,

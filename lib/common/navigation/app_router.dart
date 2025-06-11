@@ -11,11 +11,11 @@ class AppRouter extends RootStackRouter {
       path: AppRoutePaths.auth,
     ),
     CustomRoute(
+      initial: true,
       page: MainRoute.page,
       path: AppRoutePaths.main,
     ),
     CustomRoute(
-      initial: true,
       page: StatisticsRoute.page,
       path: AppRoutePaths.statistics,
     ),  
