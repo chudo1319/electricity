@@ -1,71 +1,106 @@
 import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/utils/extensions/context_extensions.dart';
+import 'package:electricity/mock/scroll_stations/mock_station_operations.dart';
+import 'package:electricity/mock/scroll_stations/station_operation.dart';
 import 'package:electricity/screens/main/widgets/pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:intl/intl.dart';
 
 class CurrentStations extends StatelessWidget {
-  const CurrentStations({super.key, required this.textStatus});
+  const CurrentStations({super.key, this.isArchive = false});
 
-  final String textStatus;
+  final bool isArchive;
 
   @override
   Widget build(BuildContext context) {
+    final allOperations = MockStationOperations.getMockOperations();
+    final operations =
+        isArchive
+            ? allOperations
+                .where((operation) => operation.status == OperationStatus.paid)
+                .toList()
+            : allOperations
+                .where(
+                  (operation) =>
+                      operation.status == OperationStatus.error ||
+                      operation.status == OperationStatus.unpaid ||
+                      operation.status == OperationStatus.inProgress,
+                )
+                .toList();
+
+    final sortedOperations =
+        isArchive
+            ? (operations..sort(
+              (a, b) => (b.endDate ?? b.startDate).compareTo(
+                a.endDate ?? a.startDate,
+              ),
+            ))
+            : StationOperation.sortOperations(operations);
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 10,
+      itemCount: sortedOperations.length,
       itemBuilder: (context, index) {
-        return index == 0 || index == 1 || textStatus == 'Оплачено'
-            ? Padding(
-              padding: const EdgeInsets.only(bottom: AppSizes.double8),
-              child: Station(
-                buildContext:
-                    (context) =>
-                        textStatus == 'Оплачено'
-                            ? PopUpPay(
-                              index: index,
-                              okText: 'Не оплачено',
-                              okButtonColor: context.color.danger,
-                              status: context.color.positive,
-                            )
-                            : PopUpPay(
-                              index: index,
-                              okText: 'Оплачено',
-                              okButtonColor: context.color.secondary,
-                              status: context.color.positive,
-                            ),
-                stationNumber: index + 1,
-                stationName: 'A57_0140',
-                stationType: 'CCS',
-                transactionDate: '13.06.2025 12:00',
-                power: 22,
-                energy: 10,
-                percent: 75,
-                colorStatus: context.color.positive,
-                isPaid: true,
-                textStatus: textStatus,
-              ),
-            )
-            : Padding(
-              padding: const EdgeInsets.only(bottom: AppSizes.double8),
-              child: Station(
-                buildContext:
-                    (context) => PopUpClose(
-                      index: index,
-                      status: context.color.positive,
-                    ),
-                stationNumber: index + 1,
-                stationName: 'A57_0140',
-                stationType: 'CCS',
-                transactionDate: '13.06.2025 12:00',
-                power: 22,
-                energy: 10,
-                percent: 75,
-                colorStatus: context.color.positive,
-                isPaid: false,
-              ),
-            );
+        final operation = sortedOperations[index];
+        final isErrorOrUnpaid =
+            operation.status == OperationStatus.error ||
+            operation.status == OperationStatus.unpaid;
+
+        String? getStatusText(OperationStatus status) {
+          switch (status) {
+            case OperationStatus.error:
+              return 'Ошибка';
+            case OperationStatus.unpaid:
+              return 'Не оплачено';
+            case OperationStatus.paid:
+              return 'Оплачено';
+            case OperationStatus.inProgress:
+              return null;
+          }
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSizes.double8),
+          child: Station(
+            buildContext:
+                (context) =>
+                    isArchive
+                        ? PopUpClose(
+                          index: index,
+                          status: context.color.positive,
+                        )
+                        : isErrorOrUnpaid
+                        ? PopUpPay(
+                          index: index,
+                          okText: getStatusText(operation.status) ?? '',
+                          okButtonColor:
+                              operation.status == OperationStatus.error
+                                  ? context.color.danger
+                                  : context.color.secondary,
+                          status: context.color.positive,
+                        )
+                        : PopUpClose(
+                          index: index,
+                          status: context.color.positive,
+                        ),
+            stationNumber: operation.stationNumber,
+            stationName: operation.stationName,
+            stationType: operation.stationType,
+            transactionDate: DateFormat('dd.MM.yyyy HH:mm').format(
+              operation.status == OperationStatus.inProgress && !isArchive
+                  ? operation.startDate
+                  : (operation.endDate ?? operation.startDate),
+            ),
+            power: operation.power,
+            energy: operation.energy,
+            percent: operation.percent,
+            colorStatus: operation.colorStatus,
+            isPaid: isArchive || operation.status != OperationStatus.inProgress,
+            textStatus: getStatusText(operation.status),
+          ),
+        );
       },
     );
   }
@@ -84,7 +119,7 @@ class Station extends StatelessWidget {
     required this.isPaid,
     required this.buildContext,
     required this.transactionDate,
-    this.textStatus,  
+    this.textStatus,
   });
 
   final int stationNumber;
@@ -153,15 +188,21 @@ class Station extends StatelessWidget {
                 // ),
                 Spacer(),
                 isPaid
-                    ? Text(
-                      textStatus!,
-                      style: context.text.regular15.copyWith(
-                        color:
-                            textStatus == 'Оплачено'
-                                ? context.color.secondary
-                                : context.color.danger,
-                      ),
-                    )
+                    ? textStatus != null
+                        ? Text(
+                          textStatus!,
+                          style: context.text.regular15.copyWith(
+                            color: context.color.danger,
+                          ),
+                        )
+                        : Container(
+                          width: AppSizes.double12,
+                          height: AppSizes.double12,
+                          decoration: BoxDecoration(
+                            color: colorStatus,
+                            shape: BoxShape.circle,
+                          ),
+                        )
                     : Container(
                       width: AppSizes.double12,
                       height: AppSizes.double12,

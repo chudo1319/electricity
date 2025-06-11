@@ -56,14 +56,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       onPointerDown: (_) => _resetInactivityTimer(),
       child: GestureDetector(
         onPanUpdate: (details) {
-          if (details.delta.dx < -20) {
-            _scaffoldKey.currentState?.openEndDrawer();
+          if (details.delta.dx > 20) {
+            _scaffoldKey.currentState?.openDrawer();
           }
         },
         child: Scaffold(
           key: _scaffoldKey,
           resizeToAvoidBottomInset: false,
-          endDrawer: DrawerButtons(),
+          drawer: DrawerButtons(),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(
@@ -92,7 +92,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         ),
                         icon: 'assets/icons/hamburger.svg',
                         onPressed: () {
-                          _scaffoldKey.currentState?.openEndDrawer();
+                          _scaffoldKey.currentState?.openDrawer();
                         },
                       ),
                     ],
@@ -107,10 +107,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                       controller: _tabController,
                       children: [
                         SingleChildScrollView(
-                          child: CurrentStations(textStatus: 'Не оплачено'),
+                          child: CurrentStations(isArchive: false),
                         ),
                         SingleChildScrollView(
-                          child: CurrentStations(textStatus: 'Оплачено'),
+                          child: CurrentStations(isArchive: true),
                         ),
                       ],
                     ),
