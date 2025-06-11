@@ -56,14 +56,14 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
       onPointerDown: (_) => _resetInactivityTimer(),
       child: GestureDetector(
         onPanUpdate: (details) {
-          if (details.delta.dx > 20) {
-            _scaffoldKey.currentState?.openDrawer();
+          if (details.delta.dx < -20) {
+            _scaffoldKey.currentState?.openEndDrawer();
           }
         },
         child: Scaffold(
           key: _scaffoldKey,
           resizeToAvoidBottomInset: false,
-          drawer: DrawerButtons(),
+          endDrawer: DrawerButtons(),
           body: SafeArea(
             child: Padding(
               padding: const EdgeInsets.only(
@@ -75,6 +75,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       PrimaryButton(
                         shape: RoundedRectangleBorder(
@@ -82,16 +83,16 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         ),
                         icon: 'assets/icons/left_arrow.svg',
                         onPressed: () {
-                          context.router.back();
+                          context.router.push(const AuthRoute());
                         },
                       ),
-                      Gap(AppSizes.double12),
                       PrimaryButton(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
+                        icon: 'assets/icons/hamburger.svg',
                         onPressed: () {
-                          _scaffoldKey.currentState?.openDrawer();
+                          _scaffoldKey.currentState?.openEndDrawer();
                         },
                       ),
                     ],

@@ -1,4 +1,5 @@
 import 'package:auto_route/auto_route.dart';
+import 'package:electricity/common/navigation/app_router.gr.dart';
 import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/utils/extensions/context_extensions.dart';
 import 'package:electricity/common/widgets/buttons/primary_button.dart';
@@ -24,7 +25,10 @@ class StatisticsTitle extends StatelessWidget {
                 ),
                 icon: 'assets/icons/left_arrow.svg',
                 onPressed: () {
-                  context.router.back();
+                  context.router.pushAndPopUntil(
+                    const MainRoute(),
+                    predicate: (route) => false,
+                  );
                 },
               ),
               Gap(AppSizes.double12),

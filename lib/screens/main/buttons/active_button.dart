@@ -31,6 +31,7 @@ class TabActiveButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TabBar(
+      dividerColor: Colors.transparent,
       controller: tabController,
       labelPadding: EdgeInsets.zero,
       onTap: (index) {

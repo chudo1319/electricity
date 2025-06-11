@@ -52,12 +52,13 @@ class ChargerGridItem extends StatelessWidget {
         if (status == Colors.green || status == Colors.yellow) {
           showDialog(
             context: context,
-            builder: (context) => PopUpTextField(index: number),
+            builder:
+                (context) => PopUpTextField(index: number - 1, status: status),
           );
         } else {
           showDialog(
             context: context,
-            builder: (context) => PopUpClose(index: number),
+            builder: (context) => PopUpClose(index: number - 1, status: status),
           );
         }
       },

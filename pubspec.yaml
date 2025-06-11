@@ -18,6 +18,7 @@ dependencies:
   calendar_date_picker2: ^2.0.1
   date_format: ^2.0.9
   intl: ^0.20.2
+  slide_to_act: ^2.0.2
 
 dev_dependencies:
   flutter_test:

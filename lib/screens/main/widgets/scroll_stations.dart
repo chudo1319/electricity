@@ -20,16 +20,21 @@ class CurrentStations extends StatelessWidget {
             ? Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.double8),
               child: Station(
-                buildContext: (context) => textStatus == 'Оплачено'
-                    ? PopUpPay(
-                      index: index,
-                      okText: 'Не оплачено',
-                      okButtonColor: context.color.danger,
-                    ) : PopUpPay(
-                      index: index,
-                      okText: 'Оплачено',
-                      okButtonColor: context.color.secondary,
-                    ),
+                buildContext:
+                    (context) =>
+                        textStatus == 'Оплачено'
+                            ? PopUpPay(
+                              index: index,
+                              okText: 'Не оплачено',
+                              okButtonColor: context.color.danger,
+                              status: context.color.positive,
+                            )
+                            : PopUpPay(
+                              index: index,
+                              okText: 'Оплачено',
+                              okButtonColor: context.color.secondary,
+                              status: context.color.positive,
+                            ),
                 stationNumber: index + 1,
                 stationName: 'A57_0140',
                 stationType: 'CCS',
@@ -44,7 +49,11 @@ class CurrentStations extends StatelessWidget {
             : Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.double8),
               child: Station(
-                buildContext: (context) => PopUpClose(index: index),
+                buildContext:
+                    (context) => PopUpClose(
+                      index: index,
+                      status: context.color.positive,
+                    ),
                 stationNumber: index + 1,
                 stationName: 'A57_0140',
                 stationType: 'CCS',
@@ -135,9 +144,10 @@ class Station extends StatelessWidget {
                     ? Text(
                       textStatus!,
                       style: context.text.regular15.copyWith(
-                        color: textStatus == 'Оплачено'
-                            ? context.color.secondary
-                            : context.color.danger,
+                        color:
+                            textStatus == 'Оплачено'
+                                ? context.color.secondary
+                                : context.color.danger,
                       ),
                     )
                     : Container(

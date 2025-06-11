@@ -7,11 +7,11 @@ class AppRouter extends RootStackRouter {
   @override
   List<AutoRoute> get routes => [
     CustomRoute(
-      initial: true,
       page: AuthRoute.page,
       path: AppRoutePaths.auth,
     ),
     CustomRoute(
+      initial: true,
       page: MainRoute.page,
       path: AppRoutePaths.main,
     ),

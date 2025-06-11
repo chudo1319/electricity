@@ -2,6 +2,7 @@ import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/utils/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:slide_to_act/slide_to_act.dart';
 
 class PopUp extends StatelessWidget {
   const PopUp({
@@ -15,6 +16,8 @@ class PopUp extends StatelessWidget {
     required this.stationName,
     required this.stationType,
     this.onPressed,
+    this.onSubmit,
+    required this.status,
   });
 
   final Widget? content;
@@ -25,7 +28,9 @@ class PopUp extends StatelessWidget {
   final int stationNumber;
   final String stationName;
   final String stationType;
-  final void Function()? onPressed;
+  final VoidCallback? onPressed;
+  final Future<void> Function()? onSubmit;
+  final Color status;
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +39,12 @@ class PopUp extends StatelessWidget {
       title: Column(
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(stationNumber.toString()),
+              Text(
+                stationNumber.toString(),
+                style: context.text.regular24.copyWith(color: status),
+              ),
               Gap(AppSizes.double8),
               Text(
                 stationName,
@@ -44,7 +53,12 @@ class PopUp extends StatelessWidget {
                 ),
               ),
               Spacer(),
-              Text(stationType),
+              Text(
+                stationType,
+                style: context.text.regular16.copyWith(
+                  color: context.color.inactive,
+                ),
+              ),
             ],
           ),
           Divider(color: context.color.onPrimary),
@@ -60,7 +74,8 @@ class PopUp extends StatelessWidget {
       actions: <Widget>[
         TextButton(
           style: TextButton.styleFrom(
-            fixedSize: Size(AppSizes.double100, AppSizes.double16),
+            elevation: 6,
+            fixedSize: Size(140, AppSizes.double16),
             backgroundColor: cancelButtonColor,
             side: BorderSide(
               color: context.color.onPrimary,
@@ -75,20 +90,27 @@ class PopUp extends StatelessWidget {
             ),
           ),
         ),
-        TextButton(
-          style: TextButton.styleFrom(
-            fixedSize: Size(AppSizes.double100, AppSizes.double16),
-            backgroundColor: okButtonColor,
-            side: BorderSide(
-              color: context.color.onPrimary,
-              width: AppSizes.double05,
-            ),
-          ),
-          onPressed: onPressed ?? () => Navigator.pop(context, 'OK'),
-          child: Text(
-            ok,
-            style: context.text.regular13.copyWith(
-              color: context.color.onSecondary,
+        SizedBox(
+          width: 140,
+          child: SlideAction(
+            alignment: Alignment.center,
+            height: AppSizes.double32,
+            outerColor: okButtonColor,
+            sliderButtonIconPadding: AppSizes.double8,
+            sliderButtonIconSize: AppSizes.double8,
+            onSubmit:
+                onSubmit ??
+                () async {
+                  if (onPressed != null) {
+                    onPressed!();
+                  }
+                  Navigator.pop(context, 'OK');
+                },
+            child: Text(
+              ok,
+              style: context.text.regular11.copyWith(
+                color: context.color.onSecondary,
+              ),
             ),
           ),
         ),
@@ -99,9 +121,10 @@ class PopUp extends StatelessWidget {
 }
 
 class PopUpClose extends StatelessWidget {
-  const PopUpClose({super.key, required this.index});
+  const PopUpClose({super.key, required this.index, required this.status});
 
   final int index;
+  final Color status;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +132,7 @@ class PopUpClose extends StatelessWidget {
       stationNumber: index + 1,
       stationName: 'A57_0140',
       stationType: 'CCS',
+      status: status,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -126,15 +150,19 @@ class PopUpClose extends StatelessWidget {
       cancelButtonColor: context.color.onBackgroundSecondary,
       ok: 'Завершить',
       okButtonColor: context.color.danger,
-      onPressed: () {
+      onPressed: null,
+      onSubmit: () async {
         Navigator.pop(context);
         showDialog(
           context: context,
-          builder: (context) => PopUpPay(
-            index: index,
-            okText: 'Оплачено',
-            okButtonColor: context.color.secondary,
-          ),
+          builder:
+              (context) => PopUpPay(
+                index: index,
+                okText: 'Оплачено',
+                okButtonColor: context.color.secondary,
+                status: status,
+                onOkPressed: () => Navigator.pop(context),
+              ),
         );
       },
     );
@@ -142,11 +170,20 @@ class PopUpClose extends StatelessWidget {
 }
 
 class PopUpPay extends StatelessWidget {
-  const PopUpPay({super.key, required this.index, required this.okText, required this.okButtonColor});
+  const PopUpPay({
+    super.key,
+    required this.index,
+    required this.okText,
+    required this.okButtonColor,
+    required this.status,
+    this.onOkPressed,
+  });
 
   final int index;
   final String okText;
   final Color okButtonColor;
+  final Color status;
+  final VoidCallback? onOkPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -154,6 +191,7 @@ class PopUpPay extends StatelessWidget {
       stationNumber: index + 1,
       stationName: 'A57_0140',
       stationType: 'CCS',
+      status: status,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,14 +215,17 @@ class PopUpPay extends StatelessWidget {
       ok: okText,
       cancelButtonColor: context.color.onBackgroundSecondary,
       okButtonColor: okButtonColor,
+      onPressed: null,
+      onSubmit: () async => Navigator.pop(context),
     );
   }
 }
 
 class PopUpTextField extends StatefulWidget {
-  const PopUpTextField({super.key, required this.index});
+  const PopUpTextField({super.key, required this.index, required this.status});
 
   final int index;
+  final Color status;
 
   @override
   State<PopUpTextField> createState() => _PopUpTextFieldState();
@@ -230,6 +271,7 @@ class _PopUpTextFieldState extends State<PopUpTextField> {
       stationNumber: widget.index + 1,
       stationName: 'A57_0140',
       stationType: 'CCS',
+      status: widget.status,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
