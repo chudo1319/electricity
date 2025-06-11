@@ -2,7 +2,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/utils/extensions/context_extensions.dart';
 import 'package:electricity/common/widgets/buttons/primary_button.dart';
-import 'package:electricity/screens/statistics/widgets/data_picker.dart';
+import 'package:electricity/screens/statistics/widgets/pickers.dart';
 import 'package:electricity/screens/statistics/widgets/report.dart';
 import 'package:electricity/screens/statistics/widgets/statistics_title.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +13,12 @@ class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
 
   @override
-  _StatisticsScreenState createState() => _StatisticsScreenState();
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
 }
 
 class _StatisticsScreenState extends State<StatisticsScreen> {
   bool showReport = false;
-  String? saveStatus; 
+  String? saveStatus;
 
   void _onSave() async {
     final success = false;
@@ -45,6 +45,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             children: [
               DataPicker(title: 'Выберите период'),
               Gap(AppSizes.double12),
+              TimePicker(title: 'Выберите время'),
+              Gap(AppSizes.double20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
