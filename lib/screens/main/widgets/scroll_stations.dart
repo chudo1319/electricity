@@ -1,11 +1,11 @@
 import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/utils/extensions/context_extensions.dart';
-import 'package:electricity/mock/scroll_stations/mock_station_operations.dart';
 import 'package:electricity/mock/scroll_stations/station_operation.dart';
+import 'package:electricity/providers/station_provider.dart';
 import 'package:electricity/screens/main/widgets/pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class CurrentStations extends StatelessWidget {
   const CurrentStations({super.key, this.isArchive = false});
@@ -14,92 +14,75 @@ class CurrentStations extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final allOperations = MockStationOperations.getMockOperations();
-    final operations =
-        isArchive
-            ? allOperations
-                .where((operation) => operation.status == OperationStatus.paid)
-                .toList()
-            : allOperations
-                .where(
-                  (operation) =>
-                      operation.status == OperationStatus.error ||
-                      operation.status == OperationStatus.unpaid ||
-                      operation.status == OperationStatus.inProgress,
-                )
-                .toList();
+    return Consumer<StationProvider>(
+      builder: (context, provider, child) {
+        final operations =
+            isArchive ? provider.archiveOperations : provider.activeOperations;
 
-    final sortedOperations =
-        isArchive
-            ? (operations..sort(
-              (a, b) => (b.endDate ?? b.startDate).compareTo(
-                a.endDate ?? a.startDate,
+        return ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: operations.length,
+          itemBuilder: (context, index) {
+            final operation = operations[index];
+            final isErrorOrUnpaid =
+                operation.status == OperationStatus.error ||
+                operation.status == OperationStatus.unpaid;
+
+            String? getStatusText(OperationStatus status) {
+              if (isArchive) return 'Оплачено';
+              switch (status) {
+                case OperationStatus.error:
+                  return 'Ошибка';
+                case OperationStatus.unpaid:
+                  return 'Не оплачено';
+                case OperationStatus.paid:
+                case OperationStatus.inProgress:
+                  return null;
+              }
+            }
+
+            Color getStatusColor(StationOperation op) {
+              switch (op.status) {
+                case OperationStatus.error:
+                case OperationStatus.unpaid:
+                  return context.color.danger;
+                case OperationStatus.inProgress:
+                  return context.color.secondary;
+                case OperationStatus.paid:
+                  return context.color.positive;
+              }
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: AppSizes.double8),
+              child: Station(
+                buildContext:
+                    (context) =>
+                        isArchive
+                            ? PopUpClose(
+                              index: index,
+                              status: getStatusColor(operation),
+                              operation: operation,
+                            )
+                            : isErrorOrUnpaid
+                            ? PopUpPay(
+                              index: index,
+                              okText: getStatusText(operation.status) ?? '',
+                              okButtonColor: context.color.danger,
+                              status: getStatusColor(operation),
+                              operation: operation,
+                            )
+                            : PopUpClose(
+                              index: index,
+                              status: getStatusColor(operation),
+                              operation: operation,
+                            ),
+                operation: operation,
+                isArchive: isArchive,
               ),
-            ))
-            : StationOperation.sortOperations(operations);
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: sortedOperations.length,
-      itemBuilder: (context, index) {
-        final operation = sortedOperations[index];
-        final isErrorOrUnpaid =
-            operation.status == OperationStatus.error ||
-            operation.status == OperationStatus.unpaid;
-
-        String? getStatusText(OperationStatus status) {
-          switch (status) {
-            case OperationStatus.error:
-              return 'Ошибка';
-            case OperationStatus.unpaid:
-              return 'Не оплачено';
-            case OperationStatus.paid:
-              return 'Оплачено';
-            case OperationStatus.inProgress:
-              return null;
-          }
-        }
-
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppSizes.double8),
-          child: Station(
-            buildContext:
-                (context) =>
-                    isArchive
-                        ? PopUpClose(
-                          index: index,
-                          status: context.color.positive,
-                        )
-                        : isErrorOrUnpaid
-                        ? PopUpPay(
-                          index: index,
-                          okText: getStatusText(operation.status) ?? '',
-                          okButtonColor:
-                              operation.status == OperationStatus.error
-                                  ? context.color.danger
-                                  : context.color.secondary,
-                          status: context.color.positive,
-                        )
-                        : PopUpClose(
-                          index: index,
-                          status: context.color.positive,
-                        ),
-            stationNumber: operation.stationNumber,
-            stationName: operation.stationName,
-            stationType: operation.stationType,
-            transactionDate: DateFormat('dd.MM.yyyy HH:mm').format(
-              operation.status == OperationStatus.inProgress && !isArchive
-                  ? operation.startDate
-                  : (operation.endDate ?? operation.startDate),
-            ),
-            power: operation.power,
-            energy: operation.energy,
-            percent: operation.percent,
-            colorStatus: operation.colorStatus,
-            isPaid: isArchive || operation.status != OperationStatus.inProgress,
-            textStatus: getStatusText(operation.status),
-          ),
+            );
+          },
         );
       },
     );
@@ -109,33 +92,45 @@ class CurrentStations extends StatelessWidget {
 class Station extends StatelessWidget {
   const Station({
     super.key,
-    required this.stationNumber,
-    required this.stationName,
-    required this.stationType,
-    required this.power,
-    required this.energy,
-    required this.percent,
-    required this.colorStatus,
-    required this.isPaid,
+    required this.operation,
     required this.buildContext,
-    required this.transactionDate,
-    this.textStatus,
+    required this.isArchive,
   });
 
-  final int stationNumber;
-  final String stationName;
-  final String stationType;
-  final num power;
-  final num energy;
-  final num percent;
-  final Color colorStatus;
-  final bool isPaid;
-  final String? textStatus;
+  final StationOperation operation;
   final Widget Function(BuildContext context)? buildContext;
-  final String transactionDate;
+  final bool isArchive;
 
   @override
   Widget build(BuildContext context) {
+    String? getStatusText(OperationStatus status) {
+      if (isArchive) return 'Оплачено';
+      switch (status) {
+        case OperationStatus.error:
+          return 'Ошибка';
+        case OperationStatus.unpaid:
+          return 'Не оплачено';
+        case OperationStatus.paid:
+        case OperationStatus.inProgress:
+          return null;
+      }
+    }
+
+    Color getStatusColor(StationOperation op) {
+      switch (op.status) {
+        case OperationStatus.error:
+        case OperationStatus.unpaid:
+          return context.color.danger;
+        case OperationStatus.inProgress:
+          return context.color.secondary;
+        case OperationStatus.paid:
+          return context.color.positive;
+      }
+    }
+
+    final statusColor = getStatusColor(operation);
+    final statusText = getStatusText(operation.status);
+
     return GestureDetector(
       onTap: () {
         if (buildContext != null) {
@@ -159,58 +154,43 @@ class Station extends StatelessWidget {
             Row(
               children: [
                 Text(
-                  stationNumber.toString(),
-                  style: context.text.medium16.copyWith(
-                    color: context.color.onPrimary,
+                  operation.stationNumber.toString(),
+                  style: context.text.medium20.copyWith(
+                    color: statusColor,
                   ),
                 ),
                 Gap(AppSizes.double8),
                 Text(
-                  stationName,
+                  operation.stationName,
                   style: context.text.medium16.copyWith(
                     color: context.color.textFieldHelper,
                   ),
                 ),
                 Gap(AppSizes.double8),
                 Text(
-                  stationType,
+                  operation.stationType,
                   style: context.text.medium16.copyWith(
                     color: context.color.onPrimary,
                   ),
                 ),
                 Gap(AppSizes.double8),
-                // Text(
-                //   transactionDate,
-                //   textAlign: TextAlign.end,
-                //   style: context.text.regular15.copyWith(
-                //     color: context.color.inactive,
-                //   ),
-                // ),
                 Spacer(),
-                isPaid
-                    ? textStatus != null
-                        ? Text(
-                          textStatus!,
-                          style: context.text.regular15.copyWith(
-                            color: context.color.danger,
-                          ),
-                        )
-                        : Container(
-                          width: AppSizes.double12,
-                          height: AppSizes.double12,
-                          decoration: BoxDecoration(
-                            color: colorStatus,
-                            shape: BoxShape.circle,
-                          ),
-                        )
-                    : Container(
-                      width: AppSizes.double12,
-                      height: AppSizes.double12,
-                      decoration: BoxDecoration(
-                        color: colorStatus,
-                        shape: BoxShape.circle,
-                      ),
+                if (statusText != null)
+                  Text(
+                    statusText,
+                    style: context.text.regular15.copyWith(
+                      color: context.color.danger,
                     ),
+                  )
+                else
+                  Container(
+                    width: AppSizes.double12,
+                    height: AppSizes.double12,
+                    decoration: BoxDecoration(
+                      color: statusColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
               ],
             ),
             Padding(
@@ -219,25 +199,25 @@ class Station extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '$power кВт',
+                    '${operation.power} кВт',
                     style: context.text.regular15.copyWith(
                       color: context.color.onPrimary,
                     ),
                   ),
                   Text(
-                    '$energy кВт*ч',
+                    '${operation.energy} кВт*ч',
                     style: context.text.regular15.copyWith(
                       color: context.color.onPrimary,
                     ),
                   ),
                   Text(
-                    '$percent%',
+                    '${operation.percent}%',
                     style: context.text.regular15.copyWith(
                       color: context.color.onPrimary,
                     ),
                   ),
                   Text(
-                    transactionDate,
+                    operation.transactionDate,
                     textAlign: TextAlign.end,
                     style: context.text.regular15.copyWith(
                       color: context.color.onPrimary,

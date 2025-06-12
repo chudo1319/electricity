@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 enum OperationStatus { error, unpaid, inProgress, paid }
 
@@ -26,6 +27,10 @@ class StationOperation {
     required this.startDate,
     this.endDate,
   });
+
+  String get transactionDate => DateFormat('dd.MM.yyyy HH:mm').format(
+    status == OperationStatus.inProgress ? startDate : (endDate ?? startDate),
+  );
 
   static List<StationOperation> getArchiveOperations(
     List<StationOperation> operations,
@@ -62,7 +67,7 @@ class StationOperation {
         return bDate.compareTo(aDate);
       } else {
         // Для остальных используем дату начала
-        return b.startDate.compareTo(a.startDate); 
+        return b.startDate.compareTo(a.startDate);
       }
     });
   }

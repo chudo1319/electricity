@@ -1,7 +1,10 @@
 import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/utils/extensions/context_extensions.dart';
+import 'package:electricity/mock/scroll_stations/station_operation.dart';
+import 'package:electricity/providers/station_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 import 'package:slide_to_act/slide_to_act.dart';
 
 class PopUp extends StatelessWidget {
@@ -12,13 +15,9 @@ class PopUp extends StatelessWidget {
     required this.ok,
     this.cancelButtonColor,
     this.okButtonColor,
-    required this.stationNumber,
-    required this.stationName,
-    required this.stationType,
+    required this.operation,
     this.onPressed,
     this.onSubmit,
-    required this.status,
-    required this.transactionDate,
   });
 
   final Widget? content;
@@ -26,13 +25,9 @@ class PopUp extends StatelessWidget {
   final String ok;
   final Color? cancelButtonColor;
   final Color? okButtonColor;
-  final int stationNumber;
-  final String stationName;
-  final String stationType;
+  final StationOperation operation;
   final VoidCallback? onPressed;
   final Future<void> Function()? onSubmit;
-  final Color status;
-  final String transactionDate;
 
   @override
   Widget build(BuildContext context) {
@@ -40,30 +35,47 @@ class PopUp extends StatelessWidget {
       backgroundColor: context.color.primary,
       title: Column(
         children: [
-          Text(
-            transactionDate,
-            style: context.text.medium20.copyWith(
-              color: context.color.onPrimary,
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: AppSizes.double40,
+                height: AppSizes.double40,
+                decoration: BoxDecoration(
+                  color: context.color.onBackgroundSecondary,
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    operation.stationNumber.toString(),
+                    style: context.text.semiBold31.copyWith(
+                      color: operation.colorStatus,
+                    ),
+                  ),
+                ),
+              ),
+              Gap(AppSizes.double8),
+              Text(
+                operation.transactionDate,
+                style: context.text.medium20.copyWith(
+                  color: context.color.onPrimary,
+                ),
+              ),
+            ],
           ),
           Gap(AppSizes.double8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                stationNumber.toString(),
-                style: context.text.regular24.copyWith(color: status),
-              ),
-              Gap(AppSizes.double8),
-              Text(
-                stationName,
+                operation.stationName,
                 style: context.text.regular16.copyWith(
                   color: context.color.inactive,
                 ),
               ),
               Spacer(),
               Text(
-                stationType,
+                operation.stationType,
                 style: context.text.regular16.copyWith(
                   color: context.color.onPrimary,
                 ),
@@ -130,28 +142,30 @@ class PopUp extends StatelessWidget {
 }
 
 class PopUpClose extends StatelessWidget {
-  const PopUpClose({super.key, required this.index, required this.status});
+  const PopUpClose({
+    super.key,
+    required this.index,
+    required this.status,
+    required this.operation,
+  });
 
   final int index;
   final Color status;
+  final StationOperation operation;
 
   @override
   Widget build(BuildContext context) {
     return PopUp(
-      stationNumber: index + 1,
-      stationName: 'A57_0140',
-      stationType: 'CCS',
-      status: status,
-      transactionDate: '13.06.2025 12:00',
+      operation: operation,
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('Мощность: 22 кВт'),
+          Text('Мощность: ${operation.power} кВт'),
           Gap(AppSizes.double8),
-          Text('Заряд: 75%'),
+          Text('Заряд: ${operation.percent}%'),
           Gap(AppSizes.double8),
-          Text('Энергия: 15 кВт*ч'),
+          Text('Энергия: ${operation.energy} кВт*ч'),
           Gap(AppSizes.double8),
           Text('Напряжение: 400 В'),
         ],
@@ -163,6 +177,10 @@ class PopUpClose extends StatelessWidget {
       onPressed: null,
       onSubmit: () async {
         Navigator.pop(context);
+        context.read<StationProvider>().updateStationStatus(
+          operation.stationNumber,
+          OperationStatus.paid,
+        );
         showDialog(
           context: context,
           builder:
@@ -171,6 +189,7 @@ class PopUpClose extends StatelessWidget {
                 okText: 'Оплачено',
                 okButtonColor: context.color.secondary,
                 status: status,
+                operation: operation,
                 onOkPressed: () => Navigator.pop(context),
               ),
         );
@@ -186,6 +205,7 @@ class PopUpPay extends StatelessWidget {
     required this.okText,
     required this.okButtonColor,
     required this.status,
+    required this.operation,
     this.onOkPressed,
   });
 
@@ -193,16 +213,13 @@ class PopUpPay extends StatelessWidget {
   final String okText;
   final Color okButtonColor;
   final Color status;
+  final StationOperation operation;
   final VoidCallback? onOkPressed;
 
   @override
   Widget build(BuildContext context) {
     return PopUp(
-      stationNumber: index + 1,
-      stationName: 'A57_0140',
-      stationType: 'CCS',
-      status: status,
-      transactionDate: '13.06.2025 12:00',
+      operation: operation,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -217,9 +234,9 @@ class PopUpPay extends StatelessWidget {
             ),
           ),
           Gap(AppSizes.double16),
-          Text('Заряд: c 20% до 80%'),
+          Text('Заряд: c ${operation.percent}% до 80%'),
           Gap(AppSizes.double8),
-          Text('Энергия: 15 кВт*ч'),
+          Text('Энергия: ${operation.energy} кВт*ч'),
         ],
       ),
       cancel: 'Закрыть',
@@ -233,10 +250,16 @@ class PopUpPay extends StatelessWidget {
 }
 
 class PopUpTextField extends StatefulWidget {
-  const PopUpTextField({super.key, required this.index, required this.status});
+  const PopUpTextField({
+    super.key,
+    required this.index,
+    required this.status,
+    required this.operation,
+  });
 
   final int index;
   final Color status;
+  final StationOperation operation;
 
   @override
   State<PopUpTextField> createState() => _PopUpTextFieldState();
@@ -279,11 +302,7 @@ class _PopUpTextFieldState extends State<PopUpTextField> {
     final timeEnabled = timeController.text.isNotEmpty || !isAnyFilled;
 
     return PopUp(
-      stationNumber: widget.index + 1,
-      stationName: 'A57_0140',
-      stationType: 'CCS',
-      status: widget.status,
-      transactionDate: '13.06.2025 12:00',
+      operation: widget.operation,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,6 +331,13 @@ class _PopUpTextFieldState extends State<PopUpTextField> {
       ok: 'Начать',
       cancelButtonColor: context.color.onBackgroundSecondary,
       okButtonColor: context.color.secondary,
+      onSubmit: () async {
+        context.read<StationProvider>().updateStationStatus(
+          widget.operation.stationNumber,
+          OperationStatus.inProgress,
+        );
+        Navigator.pop(context);
+      },
     );
   }
 }
