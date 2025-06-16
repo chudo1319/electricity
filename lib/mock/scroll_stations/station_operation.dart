@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 enum ConnectorStatus { free, connected, charging, error, unpaid, paid }
+
 enum SessionStatus { available, unpaid }
 
 class StationOperation {
@@ -28,9 +29,9 @@ class StationOperation {
     this.endDate,
   });
 
-  String get transactionDate => DateFormat('dd.MM.yyyy HH:mm').format(
-    status == ConnectorStatus.free ? startDate : (endDate ?? startDate),
-  );
+  String get transactionDate => DateFormat(
+    'dd.MM.yyyy HH:mm',
+  ).format(status == ConnectorStatus.free ? startDate : (endDate ?? startDate));
 
   static List<StationOperation> getArchiveOperations(
     List<StationOperation> operations,
@@ -49,26 +50,20 @@ class StationOperation {
   static List<StationOperation> sortOperations(
     List<StationOperation> operations,
   ) {
-    return List<StationOperation>.from(operations)..sort((a, b) {
-      // Сначала сортируем по статусу
-      if (a.status != b.status) {
-        if (a.status == ConnectorStatus.error) return -1;
-        if (b.status == ConnectorStatus.error) return 1;
-        if (a.status == ConnectorStatus.unpaid) return -1;
-        if (b.status == ConnectorStatus.unpaid) return 1;
-      }
+    bool isError(StationOperation op) => op.status == ConnectorStatus.error;
+    bool isUnpaid(StationOperation op) =>
+        op.status == ConnectorStatus.unpaid || op.sessionStatus == SessionStatus.unpaid;
 
-      // Затем сортируем по дате в зависимости от статуса
-      if (a.status == ConnectorStatus.error ||
-          a.status == ConnectorStatus.unpaid) {
-        // Для ошибок и неоплаченных используем дату завершения
-        final aDate = a.endDate ?? a.startDate;
-        final bDate = b.endDate ?? b.startDate;
-        return bDate.compareTo(aDate);
-      } else {
-        // Для остальных используем дату начала
-        return b.startDate.compareTo(a.startDate);
-      }
+    return List<StationOperation>.from(operations)..sort((a, b) {
+      if (isError(a) && !isError(b)) return -1;
+      if (!isError(a) && isError(b)) return 1;
+      if (isUnpaid(a) && !isUnpaid(b)) return -1;
+      if (!isUnpaid(a) && isUnpaid(b)) return 1;
+
+      // Далее сортировка по дате, как раньше
+      final aDate = a.endDate ?? a.startDate;
+      final bDate = b.endDate ?? b.startDate;
+      return bDate.compareTo(aDate);
     });
   }
 }

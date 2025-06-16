@@ -14,9 +14,8 @@ class ChargerGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<StationProvider>(
       builder: (context, provider, child) {
-        final operations = List<StationOperation>.from(
-          provider.activeOperations,
-        )..sort((a, b) => a.stationNumber.compareTo(b.stationNumber));
+        final operations = List<StationOperation>.from(provider.gridOperations)
+          ..sort((a, b) => a.stationNumber.compareTo(b.stationNumber));
         final chargers = List.generate(operations.length, (index) {
           final operation = operations[index];
 
@@ -53,45 +52,37 @@ class ChargerGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isError = operation.status == ConnectorStatus.error;
-
     return GestureDetector(
-      onTap:
-          isError
-              ? null
-              : () {
-                if (operation.status == ConnectorStatus.free) {
-                  showDialog(
-                    context: context,
-                    builder:
-                        (context) => PopUpTextField(
-                          index: number - 1,
-                          status: status,
-                          operation: operation,
-                        ),
-                  );
-                } else if (operation.status == ConnectorStatus.unpaid) {
-                  showDialog(
-                    context: context,
-                    builder:
-                        (context) => PopUpPay(
-                          index: number - 1,
-                          status: status,
-                          operation: operation,
-                        ),
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    builder:
-                        (context) => PopUpClose(
-                          index: number - 1,
-                          status: status,
-                          operation: operation,
-                        ),
-                  );
-                }
-              },
+      onTap: () {
+        if (operation.status == ConnectorStatus.free ||
+            operation.status == ConnectorStatus.connected) {
+          showDialog(
+            context: context,
+            builder:
+                (context) => PopUpTextField(
+                  index: number - 1,
+                  status: status,
+                  operation: operation,
+                ),
+          );
+        } else if (operation.status == ConnectorStatus.charging) {
+          showDialog(
+            context: context,
+            builder:
+                (context) => PopUpClose(
+                  okText: 'Завершить',
+                  index: number - 1,
+                  status: status,
+                  operation: operation,
+                ),
+          );
+        } else if (operation.status == ConnectorStatus.error) {
+          showDialog(
+            context: context,
+            builder: (context) => PopUpError(operation: operation),
+          );
+        }
+      },
       child: Stack(
         children: [
           Container(
@@ -112,9 +103,10 @@ class ChargerGridItem extends StatelessWidget {
                     Text(
                       number.toString(),
                       style: context.text.medium15.copyWith(
-                        color: status == context.color.disabledStatus
-                            ? context.color.onSecondary
-                            : status,
+                        color:
+                            status == context.color.disabledStatus
+                                ? context.color.onSecondary
+                                : status,
                       ),
                     ),
                     Text(
@@ -153,7 +145,6 @@ class ChargerGridItem extends StatelessWidget {
               ],
             ),
           ),
-          
         ],
       ),
     );

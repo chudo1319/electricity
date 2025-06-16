@@ -23,10 +23,7 @@ class StationProvider extends ChangeNotifier {
               (op) =>
                   op.status == ConnectorStatus.error ||
                   op.status == ConnectorStatus.unpaid ||
-                  op.status == ConnectorStatus.free ||
-                  op.status == ConnectorStatus.connected ||
-                  op.status == ConnectorStatus.charging ||
-                  op.status == ConnectorStatus.paid,  
+                  op.status == ConnectorStatus.charging,
             )
             .toList();
     return StationOperation.sortOperations(activeOps);
@@ -35,15 +32,31 @@ class StationProvider extends ChangeNotifier {
   List<StationOperation> get archiveOperations {
     final archiveOps =
         _operations
-            .where((operation) => operation.status == ConnectorStatus.paid)
+            .where((operation) =>
+                operation.status == ConnectorStatus.paid ||
+                operation.status == ConnectorStatus.error)
             .toList()
           ..sort((a, b) {
-            // Сортировка по дате завершения (от новых к старым)
             final aDate = a.endDate ?? a.startDate;
             final bDate = b.endDate ?? b.startDate;
             return bDate.compareTo(aDate);
           });
     return archiveOps;
+  }
+
+  List<StationOperation> get gridOperations {
+    final gridOps =
+        _operations
+            .where(
+              (op) =>
+                  op.status == ConnectorStatus.error ||
+                  op.status == ConnectorStatus.unpaid ||
+                  op.status == ConnectorStatus.charging ||
+                  op.status == ConnectorStatus.free ||
+                  op.status == ConnectorStatus.connected,
+            )
+            .toList();
+    return StationOperation.sortOperations(gridOps);
   }
 
   StationOperation? getStationByNumber(int number) {
@@ -75,7 +88,6 @@ class StationProvider extends ChangeNotifier {
                 ? DateTime.now()
                 : operation.endDate,
       );
-      _loadOperations(); // Перезагружаем операции для обновления архивных
       notifyListeners();
     }
   }

@@ -41,10 +41,7 @@ class PeriodPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final startDate = _parseDate(startValue);
     final endDate = _parseDate(endValue);
-
-    print(startDate);
-    print(endDate);
-
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

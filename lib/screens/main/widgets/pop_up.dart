@@ -13,7 +13,7 @@ class PopUp extends StatelessWidget {
     super.key,
     this.content,
     required this.cancel,
-    required this.ok,
+    this.ok,
     this.cancelButtonColor,
     this.okButtonColor,
     required this.operation,
@@ -23,7 +23,7 @@ class PopUp extends StatelessWidget {
 
   final Widget? content;
   final String cancel;
-  final String ok;
+  final String? ok;
   final Color? cancelButtonColor;
   final Color? okButtonColor;
   final StationOperation operation;
@@ -50,9 +50,7 @@ class PopUp extends StatelessWidget {
                 child: Center(
                   child: Text(
                     operation.stationNumber.toString(),
-                    style: context.text.semiBold31.copyWith(
-                      color: statusColor,
-                    ),
+                    style: context.text.semiBold31.copyWith(color: statusColor),
                   ),
                 ),
               ),
@@ -113,32 +111,36 @@ class PopUp extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(
-          width: 140,
-          child: SlideAction(
-            alignment: Alignment.center,
-            height: AppSizes.double32,
-            outerColor: okButtonColor,
-            sliderButtonIconPadding: AppSizes.double8,
-            sliderButtonIconSize: AppSizes.double8,
-            onSubmit:
-                onSubmit ??
-                () async {
-                  if (onPressed != null) {
-                    onPressed!();
-                  }
-                  Navigator.pop(context, 'OK');
-                },
-            child: Text(
-              ok,
-              style: context.text.regular11.copyWith(
-                color: context.color.onSecondary,
+        if (ok != null)
+          SizedBox(
+            width: 140,
+            child: SlideAction(
+              alignment: Alignment.center,
+              height: AppSizes.double32,
+              outerColor: okButtonColor,
+              sliderButtonIconPadding: AppSizes.double8,
+              sliderButtonIconSize: AppSizes.double8,
+              onSubmit:
+                  onSubmit ??
+                  () async {
+                    if (onPressed != null) {
+                      onPressed!();
+                    }
+                    Navigator.pop(context, 'OK');
+                  },
+              child: Text(
+                ok ?? '',
+                style: context.text.regular11.copyWith(
+                  color: context.color.onSecondary,
+                ),
               ),
             ),
           ),
-        ),
       ],
-      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actionsAlignment:
+          ok != null
+              ? MainAxisAlignment.spaceBetween
+              : MainAxisAlignment.center,
     );
   }
 }
@@ -149,11 +151,13 @@ class PopUpClose extends StatelessWidget {
     required this.index,
     required this.status,
     required this.operation,
+    this.okText,
   });
 
   final int index;
   final Color status;
   final StationOperation operation;
+  final String? okText;
 
   @override
   Widget build(BuildContext context) {
@@ -170,11 +174,19 @@ class PopUpClose extends StatelessWidget {
           Text('Энергия: ${operation.energy} кВт*ч'),
           Gap(AppSizes.double8),
           Text('Напряжение: 400 В'),
+          Gap(AppSizes.double8),
+          if (operation.status == ConnectorStatus.error)
+            Text(
+              'Ошибка сервера 500',
+              style: context.text.medium20.copyWith(
+                color: context.color.danger,
+              ),
+            ),
         ],
       ),
       cancel: 'Закрыть',
       cancelButtonColor: context.color.onBackgroundSecondary,
-      ok: 'Не оплачено',
+      ok: okText ?? 'Не оплачено',
       okButtonColor: context.color.danger,
       onPressed: null,
       onSubmit: () async {
@@ -387,6 +399,42 @@ class PopUpTextFieldItem extends StatelessWidget {
           color: context.color.inactive,
         ),
       ),
+    );
+  }
+}
+
+class PopUpError extends StatelessWidget {
+  const PopUpError({super.key, required this.operation});
+
+  final StationOperation operation;
+
+  @override
+  Widget build(BuildContext context) {
+    return PopUp(
+      operation: operation,
+      content: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Ошибка сервера 500',
+            style: context.text.medium20.copyWith(color: context.color.danger),
+          ),
+        ],
+      ),
+      cancel: 'Закрыть',
+      ok: 'Оплатить',
+      cancelButtonColor: context.color.onBackgroundSecondary,
+      okButtonColor: context.color.secondary,
+      onPressed: null,
+      onSubmit: () async {
+        context.read<StationProvider>().updateStationStatus(
+          operation.stationNumber,
+          ConnectorStatus.paid,
+        );
+        Navigator.pop(context);
+      },
     );
   }
 }

@@ -26,33 +26,38 @@ class CurrentStations extends StatelessWidget {
           itemCount: operations.length,
           itemBuilder: (context, index) {
             final operation = operations[index];
-            final isErrorOrUnpaid =
-                operation.status == ConnectorStatus.error ||
-                operation.status == ConnectorStatus.unpaid;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.double8),
               child: Station(
-                buildContext:
-                    (context) =>
-                        isArchive
-                            ? PopUpClose(
-                              index: index,
-                              status: getConnectorStatusColor(operation, context),
-                              operation: operation,
-                            )
-                            : isErrorOrUnpaid
-                            ? PopUpPay(
-                              index: index,
-                              status: getConnectorStatusColor(operation, context),
-                              okButtonColor: context.color.secondary,
-                              operation: operation,
-                            )
-                            : PopUpClose(
-                              index: index,
-                              status: getConnectorStatusColor(operation, context),
-                              operation: operation,
-                            ),
+                buildContext: (context) {
+                  if (isArchive) {
+                    return PopUpClose(
+                      index: index,
+                      status: getConnectorStatusColor(operation, context),
+                      operation: operation,
+                    );
+                  } else if (operation.status == ConnectorStatus.error) {
+                    return PopUpError(operation: operation);
+                  } else if (operation.status == ConnectorStatus.unpaid ||
+                      operation.sessionStatus == SessionStatus.unpaid) {
+                    return PopUpPay(
+                      index: index,
+                      status: getConnectorStatusColor(operation, context),
+                      operation: operation,
+                      okText: 'Оплачено',
+                    );
+                  } else if (operation.status == ConnectorStatus.charging) {
+                    return PopUpClose(
+                      index: index,
+                      status: getConnectorStatusColor(operation, context),
+                      operation: operation,
+                      okText: 'Завершить',
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
                 operation: operation,
                 isArchive: isArchive,
               ),
@@ -78,13 +83,17 @@ class Station extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? getStatusText(ConnectorStatus status) {
+    String? getStatusText(ConnectorStatus status, SessionStatus sessionStatus) {
       if (isArchive) return 'Оплачено';
+      if (status == ConnectorStatus.unpaid ||
+          sessionStatus == SessionStatus.unpaid) {
+        return 'Не оплачено';
+      }
       switch (status) {
         case ConnectorStatus.error:
           return 'Ошибка';
         case ConnectorStatus.unpaid:
-          return 'Не оплачено';
+          return null;
         case ConnectorStatus.paid:
         case ConnectorStatus.free:
         case ConnectorStatus.connected:
@@ -93,8 +102,14 @@ class Station extends StatelessWidget {
       }
     }
 
-    final statusColor = getConnectorStatusColor(operation, context);
-    final statusText = getStatusText(operation.status);
+    final bool isUnpaid =
+        operation.status == ConnectorStatus.unpaid ||
+        operation.sessionStatus == SessionStatus.unpaid;
+    final statusColor =
+        isUnpaid
+            ? context.color.errorStatus
+            : getConnectorStatusColor(operation, context);
+    final statusText = getStatusText(operation.status, operation.sessionStatus);
 
     return GestureDetector(
       onTap: () {
