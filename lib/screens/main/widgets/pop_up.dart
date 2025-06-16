@@ -171,11 +171,11 @@ class PopUpClose extends StatelessWidget {
           Gap(AppSizes.double8),
           Text('Заряд: ${operation.percent}%'),
           Gap(AppSizes.double8),
-          Text('Энергия: ${operation.energy} кВт*ч'),
+          Text('Энергия: ${operation.energy} кВт•ч'),
           Gap(AppSizes.double8),
           Text('Напряжение: 400 В'),
           Gap(AppSizes.double8),
-          if (operation.status == ConnectorStatus.error)
+          if (operation.status == ConnectorStatus.error || operation.wasError == true)
             Text(
               'Ошибка сервера 500',
               style: context.text.medium20.copyWith(
@@ -250,7 +250,7 @@ class PopUpPay extends StatelessWidget {
           Gap(AppSizes.double16),
           Text('Заряд: c ${operation.percent}% до 80%'),
           Gap(AppSizes.double8),
-          Text('Энергия: ${operation.energy} кВт*ч'),
+          Text('Энергия: ${operation.energy} кВт•ч'),
         ],
       ),
       cancel: 'Закрыть',
@@ -329,7 +329,7 @@ class _PopUpTextFieldState extends State<PopUpTextField> {
           ),
           Gap(AppSizes.double8),
           PopUpTextFieldItem(
-            hintText: 'Лимит кВт*ч',
+            hintText: 'Лимит кВт•ч',
             controller: kwhController,
             enabled: kwhEnabled,
           ),

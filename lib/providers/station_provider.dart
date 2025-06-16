@@ -87,6 +87,9 @@ class StationProvider extends ChangeNotifier {
             newStatus == ConnectorStatus.paid
                 ? DateTime.now()
                 : operation.endDate,
+        wasError: (operation.status == ConnectorStatus.error && newStatus == ConnectorStatus.paid)
+            ? true
+            : operation.wasError,
       );
       notifyListeners();
     }

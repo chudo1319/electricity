@@ -110,7 +110,7 @@ class ChargerGridItem extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '$energy кВт*ч',
+                      '$energy кВт•ч',
                       style: context.text.regular10.copyWith(
                         color:
                             operation.sessionStatus == SessionStatus.unpaid

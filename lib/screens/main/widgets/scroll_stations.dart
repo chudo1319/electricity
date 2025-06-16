@@ -18,7 +18,9 @@ class CurrentStations extends StatelessWidget {
     return Consumer<StationProvider>(
       builder: (context, provider, child) {
         final operations =
-            isArchive ? provider.archiveOperations : provider.activeOperations;
+            isArchive
+                ? provider.archiveOperations.where((op) => op.status != ConnectorStatus.error).toList()
+                : provider.activeOperations;
 
         return ListView.builder(
           shrinkWrap: true,
@@ -135,7 +137,11 @@ class Station extends StatelessWidget {
               children: [
                 Text(
                   operation.stationNumber.toString(),
-                  style: context.text.medium20.copyWith(color: statusColor),
+                  style: context.text.medium20.copyWith(
+                    color: isArchive && operation.wasError
+                        ? context.color.danger
+                        : statusColor,
+                  ),
                 ),
                 Gap(AppSizes.double8),
                 Text(
@@ -156,7 +162,11 @@ class Station extends StatelessWidget {
                 if (statusText != null)
                   Text(
                     statusText,
-                    style: context.text.regular15.copyWith(color: statusColor),
+                    style: context.text.regular15.copyWith(
+                      color: isArchive && operation.wasError
+                          ? context.color.danger
+                          : statusColor,
+                    ),
                   )
                 else
                   Container(
@@ -181,7 +191,7 @@ class Station extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '${operation.energy} кВт*ч',
+                    '${operation.energy} кВт•ч',
                     style: context.text.regular15.copyWith(
                       color: context.color.onPrimary,
                     ),

@@ -15,6 +15,7 @@ class StationOperation {
   final SessionStatus sessionStatus;
   final DateTime startDate;
   final DateTime? endDate;
+  final bool wasError;
 
   StationOperation({
     required this.stationNumber,
@@ -27,6 +28,7 @@ class StationOperation {
     required this.sessionStatus,
     required this.startDate,
     this.endDate,
+    this.wasError = false,
   });
 
   String get transactionDate => DateFormat(
@@ -40,9 +42,9 @@ class StationOperation {
         .where((operation) => operation.status == ConnectorStatus.paid)
         .toList()
       ..sort((a, b) {
-        // Сортировка по дате завершения (от новых к старым)
-        final aDate = a.endDate ?? a.startDate;
-        final bDate = b.endDate ?? b.startDate;
+        // Сортировка по дате начала (от новых к старым)
+        final aDate = a.startDate;
+        final bDate = b.startDate;
         return bDate.compareTo(aDate);
       });
   }

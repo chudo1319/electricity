@@ -29,6 +29,7 @@ class MockStationOperations {
         startDate: now.subtract(const Duration(hours: 4)),
         endDate: now.subtract(const Duration(hours: 3)),
       ),
+      
       // Неоплаченные операции
       StationOperation(
         stationNumber: 3,
