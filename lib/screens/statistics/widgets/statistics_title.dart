@@ -15,7 +15,7 @@ class StatisticsTitle extends StatelessWidget {
       children: [
         Gap(AppSizes.double12),
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSizes.double20),
+          padding: const EdgeInsets.symmetric(horizontal: AppSizes.double6),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [

@@ -80,11 +80,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     (val) => setState(() {
                       _startDate = val;
                       showDateError = false;
+                      showReport = false;
                     }),
                 onEndChanged:
                     (val) => setState(() {
                       _endDate = val;
                       showDateError = false;
+                      showReport = false;
                     }),
                 type: PickerType.date,
                 showError: showDateError,
@@ -108,11 +110,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     (val) => setState(() {
                       _startTime = val;
                       showTimeError = false;
+                      showReport = false;
                     }),
                 onEndChanged:
                     (val) => setState(() {
                       _endTime = val;
                       showTimeError = false;
+                      showReport = false;
                     }),
                 type: PickerType.time,
                 showError: showTimeError,
@@ -134,8 +138,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   PrimaryButton(
                     width: MediaQuery.of(context).size.width * 0.44,
                     text: 'Сформировать',
-                    onPressed: _onGenerate,
-                    isEnabled: true,
+                    onPressed: (!showReport && _isFormValid) ? _onGenerate : null,
+                    isEnabled: !showReport && _isFormValid,
                   ),
                   PrimaryButton(
                     width: MediaQuery.of(context).size.width * 0.44,

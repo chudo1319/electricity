@@ -42,6 +42,9 @@ class PeriodPicker extends StatelessWidget {
     final startDate = _parseDate(startValue);
     final endDate = _parseDate(endValue);
 
+    print(startDate);
+    print(endDate);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -167,11 +170,17 @@ class _PickerButtonState extends State<PickerButton> {
           color: context.color.inactive,
         ),
         selectableDayPredicate: (date) {
-          if (widget.minDate != null && date.isBefore(widget.minDate!)) {
-            return false;
+          if (widget.minDate != null) {
+            final min = widget.minDate!;
+            if (date.isBefore(DateTime(min.year, min.month, min.day))) {
+              return false;
+            }
           }
-          if (widget.maxDate != null && date.isAfter(widget.maxDate!)) {
-            return false;
+          if (widget.maxDate != null) {
+            final max = widget.maxDate!;
+            if (date.isAfter(DateTime(max.year, max.month, max.day))) {
+              return false;
+            }
           }
           return true;
         },
@@ -201,6 +210,7 @@ class _PickerButtonState extends State<PickerButton> {
       helpText: 'Выберите время',
       hourLabelText: 'Часы',
       minuteLabelText: 'Минуты',
+      errorInvalidText: 'Введите существующее время',
       initialTime:
           widget.value.isNotEmpty
               ? TimeOfDay.fromDateTime(DateTime.parse(widget.value))
