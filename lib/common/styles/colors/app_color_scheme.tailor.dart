@@ -41,6 +41,11 @@ mixin _$AppColorSchemeTailorMixin on ThemeExtension<AppColorScheme> {
   Color get shimmer;
   Color get shadow;
   Color get avatarBorderOnBackground;
+  Color get freeStatus;
+  Color get connectedStatus;
+  Color get chargingStatus;
+  Color get disabledStatus;
+  Color get errorStatus;
 
   @override
   AppColorScheme copyWith({
@@ -75,6 +80,11 @@ mixin _$AppColorSchemeTailorMixin on ThemeExtension<AppColorScheme> {
     Color? shimmer,
     Color? shadow,
     Color? avatarBorderOnBackground,
+    Color? freeStatus,
+    Color? connectedStatus,
+    Color? chargingStatus,
+    Color? disabledStatus,
+    Color? errorStatus,
   }) {
     return AppColorScheme(
       primary: primary ?? this.primary,
@@ -111,6 +121,11 @@ mixin _$AppColorSchemeTailorMixin on ThemeExtension<AppColorScheme> {
       shadow: shadow ?? this.shadow,
       avatarBorderOnBackground:
           avatarBorderOnBackground ?? this.avatarBorderOnBackground,
+      freeStatus: freeStatus ?? this.freeStatus,
+      connectedStatus: connectedStatus ?? this.connectedStatus,
+      chargingStatus: chargingStatus ?? this.chargingStatus,
+      disabledStatus: disabledStatus ?? this.disabledStatus,
+      errorStatus: errorStatus ?? this.errorStatus,
     );
   }
 
@@ -167,6 +182,11 @@ mixin _$AppColorSchemeTailorMixin on ThemeExtension<AppColorScheme> {
             other.avatarBorderOnBackground,
             t,
           )!,
+      freeStatus: Color.lerp(freeStatus, other.freeStatus, t)!,
+      connectedStatus: Color.lerp(connectedStatus, other.connectedStatus, t)!,
+      chargingStatus: Color.lerp(chargingStatus, other.chargingStatus, t)!,
+      disabledStatus: Color.lerp(disabledStatus, other.disabledStatus, t)!,
+      errorStatus: Color.lerp(errorStatus, other.errorStatus, t)!,
     );
   }
 
@@ -259,7 +279,15 @@ mixin _$AppColorSchemeTailorMixin on ThemeExtension<AppColorScheme> {
             const DeepCollectionEquality().equals(
               avatarBorderOnBackground,
               other.avatarBorderOnBackground,
-            ));
+            ) &&
+            const DeepCollectionEquality().equals(freeStatus, other.freeStatus) &&
+            const DeepCollectionEquality().equals(
+              connectedStatus,
+              other.connectedStatus,
+            ) &&
+            const DeepCollectionEquality().equals(chargingStatus, other.chargingStatus) &&
+            const DeepCollectionEquality().equals(disabledStatus, other.disabledStatus) &&
+            const DeepCollectionEquality().equals(errorStatus, other.errorStatus));
   }
 
   @override
@@ -297,6 +325,11 @@ mixin _$AppColorSchemeTailorMixin on ThemeExtension<AppColorScheme> {
       const DeepCollectionEquality().hash(shimmer),
       const DeepCollectionEquality().hash(shadow),
       const DeepCollectionEquality().hash(avatarBorderOnBackground),
+      const DeepCollectionEquality().hash(freeStatus),
+      const DeepCollectionEquality().hash(connectedStatus),
+      const DeepCollectionEquality().hash(chargingStatus),
+      const DeepCollectionEquality().hash(disabledStatus),
+      const DeepCollectionEquality().hash(errorStatus),
     ]);
   }
 }

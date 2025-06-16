@@ -1,3 +1,4 @@
+import 'package:electricity/common/func/get_status_color.dart';
 import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/utils/extensions/context_extensions.dart';
 import 'package:electricity/mock/scroll_stations/station_operation.dart';
@@ -31,6 +32,7 @@ class PopUp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = getConnectorStatusColor(operation, context);
     return AlertDialog(
       backgroundColor: context.color.primary,
       title: Column(
@@ -49,7 +51,7 @@ class PopUp extends StatelessWidget {
                   child: Text(
                     operation.stationNumber.toString(),
                     style: context.text.semiBold31.copyWith(
-                      color: operation.colorStatus,
+                      color: statusColor,
                     ),
                   ),
                 ),
@@ -172,14 +174,14 @@ class PopUpClose extends StatelessWidget {
       ),
       cancel: 'Закрыть',
       cancelButtonColor: context.color.onBackgroundSecondary,
-      ok: 'Завершить',
+      ok: 'Не оплачено',
       okButtonColor: context.color.danger,
       onPressed: null,
       onSubmit: () async {
         Navigator.pop(context);
         context.read<StationProvider>().updateStationStatus(
           operation.stationNumber,
-          OperationStatus.paid,
+          ConnectorStatus.paid,
         );
         showDialog(
           context: context,
@@ -202,16 +204,16 @@ class PopUpPay extends StatelessWidget {
   const PopUpPay({
     super.key,
     required this.index,
-    required this.okText,
-    required this.okButtonColor,
+    this.okText,
+    this.okButtonColor,
     required this.status,
     required this.operation,
     this.onOkPressed,
   });
 
   final int index;
-  final String okText;
-  final Color okButtonColor;
+  final String? okText;
+  final Color? okButtonColor;
   final Color status;
   final StationOperation operation;
   final VoidCallback? onOkPressed;
@@ -240,9 +242,9 @@ class PopUpPay extends StatelessWidget {
         ],
       ),
       cancel: 'Закрыть',
-      ok: okText,
+      ok: 'Оплачено',
       cancelButtonColor: context.color.onBackgroundSecondary,
-      okButtonColor: okButtonColor,
+      okButtonColor: context.color.secondary,
       onPressed: null,
       onSubmit: () async => Navigator.pop(context),
     );
@@ -334,7 +336,7 @@ class _PopUpTextFieldState extends State<PopUpTextField> {
       onSubmit: () async {
         context.read<StationProvider>().updateStationStatus(
           widget.operation.stationNumber,
-          OperationStatus.inProgress,
+          ConnectorStatus.free,
         );
         Navigator.pop(context);
       },

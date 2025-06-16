@@ -5,6 +5,7 @@ import 'package:electricity/providers/station_provider.dart';
 import 'package:electricity/screens/main/widgets/pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:electricity/common/func/get_status_color.dart';
 
 class ChargerGrid extends StatelessWidget {
   const ChargerGrid({super.key});
@@ -13,43 +14,17 @@ class ChargerGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<StationProvider>(
       builder: (context, provider, child) {
-        final operations = provider.activeOperations;
+        final operations = List<StationOperation>.from(
+          provider.activeOperations,
+        )..sort((a, b) => a.stationNumber.compareTo(b.stationNumber));
         final chargers = List.generate(operations.length, (index) {
-          final operation = operations.firstWhere(
-            (op) => op.stationNumber == index + 1,
-            orElse:
-                () => StationOperation(
-                  stationNumber: index + 1,
-                  stationName:
-                      'A57_${(index + 140).toString().padLeft(4, '0')}',
-                  stationType: ['GB/T', 'CCS', 'CHAdeMO'][index % 3],
-                  power: 0,
-                  energy: 0,
-                  percent: 0,
-                  colorStatus: context.color.positive,
-                  status: OperationStatus.paid,
-                  startDate: DateTime.now(),
-                ),
-          );
-
-          // Определяем цвет статуса в зависимости от состояния
-          Color getStatusColor(StationOperation op) {
-            switch (op.status) {
-              case OperationStatus.error:
-              case OperationStatus.unpaid:
-                return context.color.danger;
-              case OperationStatus.inProgress:
-                return context.color.secondary;
-              case OperationStatus.paid:
-                return context.color.positive;
-            }
-          }
+          final operation = operations[index];
 
           return ChargerGridItem(
             number: operation.stationNumber,
             type: operation.stationType,
             energy: operation.energy.toInt(),
-            status: getStatusColor(operation),
+            status: getConnectorStatusColor(operation, context),
             operation: operation,
           );
         });
@@ -78,14 +53,14 @@ class ChargerGridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isError = operation.status == OperationStatus.error;
+    final isError = operation.status == ConnectorStatus.error;
 
     return GestureDetector(
       onTap:
           isError
-              ? null // Отключаем onTap для статуса "Ошибка"
+              ? null
               : () {
-                if (operation.status == OperationStatus.paid) {
+                if (operation.status == ConnectorStatus.free) {
                   showDialog(
                     context: context,
                     builder:
@@ -95,14 +70,12 @@ class ChargerGridItem extends StatelessWidget {
                           operation: operation,
                         ),
                   );
-                } else if (operation.status == OperationStatus.unpaid) {
+                } else if (operation.status == ConnectorStatus.unpaid) {
                   showDialog(
                     context: context,
                     builder:
                         (context) => PopUpPay(
                           index: number - 1,
-                          okText: 'Не оплачено',
-                          okButtonColor: context.color.danger,
                           status: status,
                           operation: operation,
                         ),
@@ -126,7 +99,7 @@ class ChargerGridItem extends StatelessWidget {
             width: AppSizes.double80,
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: context.color.shimmer,
+              color: getSessionStatusColor(operation.sessionStatus, context),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
@@ -138,18 +111,19 @@ class ChargerGridItem extends StatelessWidget {
                   children: [
                     Text(
                       number.toString(),
-                      style: context.text.medium13.copyWith(
-                        color: status,
-                        decorationColor: status,
-                        decorationThickness: 2,
+                      style: context.text.medium15.copyWith(
+                        color: status == context.color.disabledStatus
+                            ? context.color.onSecondary
+                            : status,
                       ),
                     ),
                     Text(
                       '$energy кВт*ч',
-                      style: context.text.regular8.copyWith(
-                        color: context.color.onSecondary,
-                        decorationColor: context.color.onSecondary,
-                        decorationThickness: 1,
+                      style: context.text.regular10.copyWith(
+                        color:
+                            operation.sessionStatus == SessionStatus.unpaid
+                                ? context.color.onPrimary
+                                : context.color.onSecondary,
                       ),
                     ),
                   ],
@@ -159,10 +133,11 @@ class ChargerGridItem extends StatelessWidget {
                   children: [
                     Text(
                       type,
-                      style: context.text.regular8.copyWith(
-                        color: context.color.onSecondary,
-                        decorationColor: context.color.onSecondary,
-                        decorationThickness: 1,
+                      style: context.text.regular10.copyWith(
+                        color:
+                            operation.sessionStatus == SessionStatus.unpaid
+                                ? context.color.onPrimary
+                                : context.color.onSecondary,
                       ),
                     ),
                     Container(
@@ -178,15 +153,7 @@ class ChargerGridItem extends StatelessWidget {
               ],
             ),
           ),
-          if (isError)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: status, width: 2),
-                ),
-              ),
-            ),
+          
         ],
       ),
     );

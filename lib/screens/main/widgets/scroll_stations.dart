@@ -6,6 +6,7 @@ import 'package:electricity/screens/main/widgets/pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
+import 'package:electricity/common/func/get_status_color.dart';
 
 class CurrentStations extends StatelessWidget {
   const CurrentStations({super.key, this.isArchive = false});
@@ -26,33 +27,8 @@ class CurrentStations extends StatelessWidget {
           itemBuilder: (context, index) {
             final operation = operations[index];
             final isErrorOrUnpaid =
-                operation.status == OperationStatus.error ||
-                operation.status == OperationStatus.unpaid;
-
-            String? getStatusText(OperationStatus status) {
-              if (isArchive) return 'Оплачено';
-              switch (status) {
-                case OperationStatus.error:
-                  return 'Ошибка';
-                case OperationStatus.unpaid:
-                  return 'Не оплачено';
-                case OperationStatus.paid:
-                case OperationStatus.inProgress:
-                  return null;
-              }
-            }
-
-            Color getStatusColor(StationOperation op) {
-              switch (op.status) {
-                case OperationStatus.error:
-                case OperationStatus.unpaid:
-                  return context.color.danger;
-                case OperationStatus.inProgress:
-                  return context.color.secondary;
-                case OperationStatus.paid:
-                  return context.color.positive;
-              }
-            }
+                operation.status == ConnectorStatus.error ||
+                operation.status == ConnectorStatus.unpaid;
 
             return Padding(
               padding: const EdgeInsets.only(bottom: AppSizes.double8),
@@ -62,20 +38,19 @@ class CurrentStations extends StatelessWidget {
                         isArchive
                             ? PopUpClose(
                               index: index,
-                              status: getStatusColor(operation),
+                              status: getConnectorStatusColor(operation, context),
                               operation: operation,
                             )
                             : isErrorOrUnpaid
                             ? PopUpPay(
                               index: index,
-                              okText: getStatusText(operation.status) ?? '',
-                              okButtonColor: context.color.danger,
-                              status: getStatusColor(operation),
+                              status: getConnectorStatusColor(operation, context),
+                              okButtonColor: context.color.secondary,
                               operation: operation,
                             )
                             : PopUpClose(
                               index: index,
-                              status: getStatusColor(operation),
+                              status: getConnectorStatusColor(operation, context),
                               operation: operation,
                             ),
                 operation: operation,
@@ -103,32 +78,22 @@ class Station extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? getStatusText(OperationStatus status) {
+    String? getStatusText(ConnectorStatus status) {
       if (isArchive) return 'Оплачено';
       switch (status) {
-        case OperationStatus.error:
+        case ConnectorStatus.error:
           return 'Ошибка';
-        case OperationStatus.unpaid:
+        case ConnectorStatus.unpaid:
           return 'Не оплачено';
-        case OperationStatus.paid:
-        case OperationStatus.inProgress:
+        case ConnectorStatus.paid:
+        case ConnectorStatus.free:
+        case ConnectorStatus.connected:
+        case ConnectorStatus.charging:
           return null;
       }
     }
 
-    Color getStatusColor(StationOperation op) {
-      switch (op.status) {
-        case OperationStatus.error:
-        case OperationStatus.unpaid:
-          return context.color.danger;
-        case OperationStatus.inProgress:
-          return context.color.secondary;
-        case OperationStatus.paid:
-          return context.color.positive;
-      }
-    }
-
-    final statusColor = getStatusColor(operation);
+    final statusColor = getConnectorStatusColor(operation, context);
     final statusText = getStatusText(operation.status);
 
     return GestureDetector(
@@ -155,9 +120,7 @@ class Station extends StatelessWidget {
               children: [
                 Text(
                   operation.stationNumber.toString(),
-                  style: context.text.medium20.copyWith(
-                    color: statusColor,
-                  ),
+                  style: context.text.medium20.copyWith(color: statusColor),
                 ),
                 Gap(AppSizes.double8),
                 Text(
@@ -178,9 +141,7 @@ class Station extends StatelessWidget {
                 if (statusText != null)
                   Text(
                     statusText,
-                    style: context.text.regular15.copyWith(
-                      color: context.color.danger,
-                    ),
+                    style: context.text.regular15.copyWith(color: statusColor),
                   )
                 else
                   Container(

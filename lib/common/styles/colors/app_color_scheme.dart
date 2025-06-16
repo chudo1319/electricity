@@ -165,6 +165,26 @@ class AppColorScheme extends ThemeExtension<AppColorScheme> with _$AppColorSchem
   @override
   final Color avatarBorderOnBackground;
 
+  /// The color of the free status.
+  @override
+  final Color freeStatus;
+
+  /// The color of the connected status.
+  @override
+  final Color connectedStatus;
+  
+  /// The color of the charging status.
+  @override
+  final Color chargingStatus;
+
+  /// The color of the disabled status.
+  @override
+  final Color disabledStatus;
+
+  /// The color of the error status.
+  @override
+  final Color errorStatus;
+
   /// @nodoc
   const AppColorScheme({
     required this.primary,
@@ -198,6 +218,11 @@ class AppColorScheme extends ThemeExtension<AppColorScheme> with _$AppColorSchem
     required this.shimmer,
     required this.shadow,
     required this.avatarBorderOnBackground,
+    required this.freeStatus,
+    required this.connectedStatus,
+    required this.chargingStatus,
+    required this.disabledStatus,
+    required this.errorStatus,
   });
 
   /// Base dark theme version.
@@ -232,5 +257,10 @@ class AppColorScheme extends ThemeExtension<AppColorScheme> with _$AppColorSchem
         onSkeletonPrimary = const Color(0xCC000000),
         shimmer = Colors.black,
         shadow = Colors.black.withOpacity(0.25),
-        avatarBorderOnBackground = const Color(0xFFE7E7E7);
+        avatarBorderOnBackground = const Color(0xFFE7E7E7),
+        freeStatus = const Color(0xFF35C518),
+        connectedStatus = const Color(0xFFFFEB3B),
+        chargingStatus = const Color(0xFF23DDF9),
+        disabledStatus = const Color(0xFF7C7C7C),
+        errorStatus = const Color(0xFFDF3222);
 }

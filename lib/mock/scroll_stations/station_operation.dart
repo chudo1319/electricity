@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-enum OperationStatus { error, unpaid, inProgress, paid }
+enum ConnectorStatus { free, connected, charging, error, unpaid, paid }
+enum SessionStatus { available, unpaid }
 
 class StationOperation {
   final int stationNumber;
@@ -10,8 +10,8 @@ class StationOperation {
   final num power;
   final num energy;
   final num percent;
-  final Color colorStatus;
-  final OperationStatus status;
+  final ConnectorStatus status;
+  final SessionStatus sessionStatus;
   final DateTime startDate;
   final DateTime? endDate;
 
@@ -22,21 +22,21 @@ class StationOperation {
     required this.power,
     required this.energy,
     required this.percent,
-    required this.colorStatus,
     required this.status,
+    required this.sessionStatus,
     required this.startDate,
     this.endDate,
   });
 
   String get transactionDate => DateFormat('dd.MM.yyyy HH:mm').format(
-    status == OperationStatus.inProgress ? startDate : (endDate ?? startDate),
+    status == ConnectorStatus.free ? startDate : (endDate ?? startDate),
   );
 
   static List<StationOperation> getArchiveOperations(
     List<StationOperation> operations,
   ) {
     return operations
-        .where((operation) => operation.status == OperationStatus.paid)
+        .where((operation) => operation.status == ConnectorStatus.paid)
         .toList()
       ..sort((a, b) {
         // Сортировка по дате завершения (от новых к старым)
@@ -52,15 +52,15 @@ class StationOperation {
     return List<StationOperation>.from(operations)..sort((a, b) {
       // Сначала сортируем по статусу
       if (a.status != b.status) {
-        if (a.status == OperationStatus.error) return -1;
-        if (b.status == OperationStatus.error) return 1;
-        if (a.status == OperationStatus.unpaid) return -1;
-        if (b.status == OperationStatus.unpaid) return 1;
+        if (a.status == ConnectorStatus.error) return -1;
+        if (b.status == ConnectorStatus.error) return 1;
+        if (a.status == ConnectorStatus.unpaid) return -1;
+        if (b.status == ConnectorStatus.unpaid) return 1;
       }
 
       // Затем сортируем по дате в зависимости от статуса
-      if (a.status == OperationStatus.error ||
-          a.status == OperationStatus.unpaid) {
+      if (a.status == ConnectorStatus.error ||
+          a.status == ConnectorStatus.unpaid) {
         // Для ошибок и неоплаченных используем дату завершения
         final aDate = a.endDate ?? a.startDate;
         final bDate = b.endDate ?? b.startDate;

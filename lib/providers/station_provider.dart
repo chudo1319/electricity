@@ -21,9 +21,12 @@ class StationProvider extends ChangeNotifier {
         _operations
             .where(
               (op) =>
-                  op.status == OperationStatus.error ||
-                  op.status == OperationStatus.unpaid ||
-                  op.status == OperationStatus.inProgress,
+                  op.status == ConnectorStatus.error ||
+                  op.status == ConnectorStatus.unpaid ||
+                  op.status == ConnectorStatus.free ||
+                  op.status == ConnectorStatus.connected ||
+                  op.status == ConnectorStatus.charging ||
+                  op.status == ConnectorStatus.paid,  
             )
             .toList();
     return StationOperation.sortOperations(activeOps);
@@ -32,7 +35,7 @@ class StationProvider extends ChangeNotifier {
   List<StationOperation> get archiveOperations {
     final archiveOps =
         _operations
-            .where((operation) => operation.status == OperationStatus.paid)
+            .where((operation) => operation.status == ConnectorStatus.paid)
             .toList()
           ..sort((a, b) {
             // Сортировка по дате завершения (от новых к старым)
@@ -51,7 +54,7 @@ class StationProvider extends ChangeNotifier {
     }
   }
 
-  void updateStationStatus(int stationNumber, OperationStatus newStatus) {
+  void updateStationStatus(int stationNumber, ConnectorStatus newStatus) {
     final index = _operations.indexWhere(
       (op) => op.stationNumber == stationNumber,
     );
@@ -64,11 +67,11 @@ class StationProvider extends ChangeNotifier {
         power: operation.power,
         energy: operation.energy,
         percent: operation.percent,
-        colorStatus: operation.colorStatus,
         status: newStatus,
+        sessionStatus: operation.sessionStatus,
         startDate: operation.startDate,
         endDate:
-            newStatus == OperationStatus.paid
+            newStatus == ConnectorStatus.paid
                 ? DateTime.now()
                 : operation.endDate,
       );
