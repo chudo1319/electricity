@@ -6,6 +6,8 @@ import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
+import '../../../generated/assets.dart';
+
 enum PickerType { date, time }
 
 class PeriodPicker extends StatelessWidget {
@@ -346,8 +348,8 @@ class _PickerButtonState extends State<PickerButton> {
               ),
               SvgPicture.asset(
                 widget.value.isEmpty
-                    ? 'assets/icons/calendar.svg'
-                    : 'assets/icons/cancel.svg',
+                    ? Assets.iconsCalendar
+                    : Assets.iconsCancel,
                 height: AppSizes.double20,
                 colorFilter: ColorFilter.mode(
                   widget.showError

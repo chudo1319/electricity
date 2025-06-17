@@ -6,6 +6,8 @@ import 'package:electricity/common/widgets/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
+import '../../../generated/assets.dart';
+
 class StatisticsTitle extends StatelessWidget {
   const StatisticsTitle({super.key});
 
@@ -23,7 +25,7 @@ class StatisticsTitle extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                icon: 'assets/icons/left_arrow.svg',
+                icon: Assets.iconsLeftArrow,
                 onPressed: () {
                   context.router.pushAndPopUntil(
                     const MainRoute(),

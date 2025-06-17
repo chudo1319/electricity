@@ -2,6 +2,11 @@
 class Assets {
   Assets._();
 
+  static const String assetsIconsLeftArrow = 'assets/icons/left_arrow.svg';
+  static const String iconsCalendar = 'assets/icons/calendar.svg';
+  static const String iconsCancel = 'assets/icons/cancel.svg';
+  static const String iconsHamburger = 'assets/icons/hamburger.svg';
+  static const String iconsLeftArrow = 'assets/icons/left_arrow.svg';
   static const String imagesLogo = 'assets/images/logo.png';
 
 }

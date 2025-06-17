@@ -4,6 +4,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:electricity/common/navigation/app_router.gr.dart';
 import 'package:electricity/common/styles/app_sizes.dart';
 import 'package:electricity/common/widgets/buttons/primary_button.dart';
+import 'package:electricity/generated/assets.dart';
 import 'package:electricity/screens/main/buttons/active_button.dart';
 import 'package:electricity/screens/main/widgets/charger_grid.dart';
 import 'package:electricity/screens/main/widgets/drawer_buttons.dart';
@@ -81,7 +82,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        icon: 'assets/icons/left_arrow.svg',
+                        icon: Assets.iconsLeftArrow,
                         onPressed: () {
                           context.router.push(const AuthRoute());
                         },
@@ -90,7 +91,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        icon: 'assets/icons/hamburger.svg',
+                        icon: Assets.iconsHamburger,
                         onPressed: () {
                           _scaffoldKey.currentState?.openDrawer();
                         },

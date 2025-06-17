@@ -7,6 +7,7 @@ import 'package:pinput/pinput.dart';
 import '../../common/navigation/app_router.gr.dart';
 import '../../common/styles/app_sizes.dart';
 import '../../common/widgets/buttons/primary_button.dart';
+import '../../generated/assets.dart';
 
 @RoutePage()
 class AuthScreen extends StatefulWidget {
@@ -58,7 +59,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Image.asset('assets/images/logo.png', width: 300, height: 300),
+              Image.asset(Assets.imagesLogo, width: 300, height: 300),
               Gap(AppSizes.double60),
               Pinput(
                 controller: pinController,
